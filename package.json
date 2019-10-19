@@ -1,0 +1,48 @@
+{
+  "name": "exercises-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "lint": "NODE_ENV=test eslint src tests db",
+    "lint:fix": "NODE_ENV=test eslint --fix src tests db",
+    "test:app": "NODE_ENV=test npm run db:latest && NODE_ENV=test nyc --reporter=html --reporter=text mocha tests",
+    "test:watch": "npm run test:app -- --watch",
+    "test": "npm run lint && npm run test:app",
+    "start": "NODE_ENV=dev npm run db:latest && npm run db:initial-state && NODE_ENV=dev node src/app",
+    "start:watch": "NODE_ENV=dev npm run db:latest && NODE_ENV=dev npm run db:initial-state && NODE_ENV=dev nodemon src/app",
+    "db:latest": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback",
+    "db:rollback-all": "knex migrate:rollback --all",
+    "db:initial-state": "knex seed:run"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.5",
+    "body-parser": "~1.17.2",
+    "cors": "^2.8.5",
+    "eslint": "^6.3.0",
+    "express": "~4.15.3",
+    "expressify": "^2.0.0",
+    "http-errors": "~1.6.1",
+    "install": "^0.13.0",
+    "knex": "^0.19.4",
+    "lodash": "^4.17.15",
+    "nock": "~9.0.14",
+    "node-fetch": "^2.6.0",
+    "nodemon": "^1.19.2",
+    "npm": "^6.11.3",
+    "pg": "^7.12.1",
+    "promise": "~7.3.0",
+    "superagent": "~3.5.2",
+    "uuid": "~3.1.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "~3.5.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "mocha": "~3.3.0",
+    "nyc": "~11.1.0"
+  }
+}
