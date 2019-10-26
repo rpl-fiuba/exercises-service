@@ -14,8 +14,8 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    const userProfile = await usersClient.authenticate({ context });
-    req.context.userProfile = userProfile;
+    const user = await usersClient.authenticate({ context });
+    req.context.user = user;
     next();
   } catch (err) {
     next(err);

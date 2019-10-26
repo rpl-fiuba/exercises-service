@@ -7,12 +7,12 @@ const sanitizeResponse = (response) => {
   if (_.isArray(response)) {
     return response.map((obj) => sanitizeResponse(obj));
   }
-  delete response.id; // TODO: NO NECESARIAMENTE
+  delete response.id;
   return response;
 };
 
 const cleanDb = async () => {
-  await knex('users').del();
+  await knex('exercises').del();
 };
 
 module.exports = {
