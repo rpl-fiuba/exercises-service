@@ -13,6 +13,7 @@ const sanitizeResponse = (response) => {
 
 const cleanDb = async () => {
   await knex('exercises').del();
+  await knex('student_exercises').del();
 };
 
 module.exports = {

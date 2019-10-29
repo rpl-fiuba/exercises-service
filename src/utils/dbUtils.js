@@ -14,7 +14,9 @@ const snakelize = (obj) => {
   const newObj = {};
 
   Object.keys(obj).forEach((key) => {
-    newObj[_.snakeCase(key)] = obj[key];
+    if (obj[key]) { // to prevent null objects are inserted
+      newObj[_.snakeCase(key)] = obj[key];
+    }
   });
 
   return newObj;

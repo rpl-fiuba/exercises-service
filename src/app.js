@@ -11,6 +11,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 const requestLoggerMiddleware = require('./middlewares/requestLoggerMiddleware');
 
 const statusController = require('./controllers/statusController');
+const usersController = require('./controllers/usersController');
 const exerciseController = require('./controllers/exerciseController');
 
 const app = express();
@@ -32,15 +33,21 @@ router.use(authMiddleware);
 
 // Users
 /* eslint-disable max-len */
-// router.post('/courses/:courseId/users', coursesController.createUser); // TODO: VALIDAR QUE EL USUARIO PERTENECE AL CURSO Y CREAR EJERCICIOS PARA EL
+router.post('/courses/:courseId/users', usersController.addUser); // TODO: VALIDAR QUE EL USUARIO PERTENECE AL CURSO Y CREAR EJERCICIOS PARA EL
 
 // Exercises
 router.post('/courses/:courseId/guides/:guideId/exercises', exerciseController.create); // TODO: SOLO PROFE DEL CURSO. VALIDAR QUE EL CURSO Y LA GUIA EXISTEN
-router.get('/courses/:courseId/guides/:guideId/exercises', exerciseController.list); // TODO: PARA UN USUARIO? Y SI ES EL PROFE CAMBIAMOS?
 
-// router.get('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.get);
+router.get('/courses/:courseId/guides/:guideId/exercises', exerciseController.list); // TODO: PARA UN USUARIO? Y SI ES EL PROFE CAMBIAMOS?
+router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
 // router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
-// router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
+
+// User Exercises
+// router.get('/courses/:courseId/guides/:guideId/users/:userId/exercises', exerciseController.list); // TODO: PARA UN USUARIO? Y SI ES EL PROFE CAMBIAMOS?
+// router.get('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.get);
+// router.delete('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
+// router.patch('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
+
 
 // Resolution
 // router.post('/courses/:courseId/guides/:guideId/exercises/:exerciseId/validate', resolutionController.validate);

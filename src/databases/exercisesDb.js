@@ -18,31 +18,23 @@ const createExercise = async ({ courseId, guideId, exerciseMetadata }) => (
     .returning('*')
     .then(processDbResponse)
     .then((response) => response[0])
-    .catch((err) => {
-      if (err.code === '23505') { // TODO: WHHAAAAATTT ???
-        throw new createError.Conflict('Exercise already created');
-      }
-      throw err.message;
-    })
 );
 
 /**
  * List exercise.
  *
  */
-const listExercises = async ({ courseId, guideId }) => (
-  knex('exercises')
+const listExercises = async ({ courseId, guideId }) => {
+  if (!courseId && !guideId) {
+    throw new Error('at least courseId or guideId should be defined');
+  }
+
+  return knex('exercises')
     .select('*')
-    .where('course_id', courseId)
-    .where('guide_id', guideId)
+    .where(snakelize({ courseId, guideId }))
     .then(processDbResponse)
-    .catch((err) => {
-      if (err.code === '23505') { // TODO: WHHAAAAATTT ???
-        throw new createError.Conflict('Exercise already created');
-      }
-      throw err.message;
-    })
-);
+    .catch((e) => console.log(e));
+};
 
 /**
  * Update exercise.
@@ -61,9 +53,11 @@ const updateExercise = async ({
     .where('exercise_id', exerciseId)
     .returning('*')
     .then(processDbResponse)
-    .catch((err) => {
-      console.log('EXERCISE ERROR', err);
-      throw err.message;
+    .then((response) => {
+      if (!response[0]) {
+        throw createError.NotFound('Exercise not found');
+      }
+      return response[0];
     })
 );
 

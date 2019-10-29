@@ -18,12 +18,12 @@ exports.up = (knex) => {
       difficulty  difficulty NOT NULL
     );
 
-    CREATE TABLE student_exercise(
+    CREATE TABLE student_exercises(
       user_id      CHARACTER VARYING(64) NOT NULL,
       exercise_id  CHARACTER VARYING(64) NOT NULL,
 
       state        exercise_state NOT NULL DEFAULT 'incompleted',
-      calification INT,
+      calification INT DEFAULT NULL,
       PRIMARY KEY (user_id, exercise_id)
     );
   `;
@@ -34,7 +34,7 @@ exports.up = (knex) => {
 exports.down = (knex) => {
   const query = `
     DROP TABLE exercises;
-    DROP TABLE student_exercise;
+    DROP TABLE student_exercises;
     DROP TYPE type;
     DROP TYPE difficulty;
     DROP TYPE exercise_state;

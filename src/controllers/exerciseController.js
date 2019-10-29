@@ -2,7 +2,6 @@ const _ = require('lodash');
 const createError = require('http-errors');
 const expressify = require('expressify')();
 const exerciseService = require('../services/exerciseService');
-// const logger = require('../utils/logger.js');
 
 const allowedExerciseTypes = ['derivative', 'integral'];
 
@@ -84,7 +83,7 @@ const update = async (req, res) => {
     return Promise.reject(createError.BadRequest('No params have been provided'));
   }
 
-  const updatedExercise = await exerciseService.create({
+  const updatedExercise = await exerciseService.update({
     context: req.context,
     guideId,
     courseId,

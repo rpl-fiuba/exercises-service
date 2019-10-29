@@ -96,6 +96,83 @@ describe('Integration exercises tests', () => {
     });
   });
 
+  describe('Update exercise', () => {
+    let updatedExercise;
+    let expectedUpdatedExercise;
+
+    describe('When the user is the professor of the course', () => {
+      describe('When the exercise to update exists', () => {
+        beforeEach(async () => {
+          exercise = {
+            exercise: 'int',
+            name: 'integrala',
+            description: 'calcula la integrate',
+            type: 'integral',
+            difficulty: 'easy'
+          };
+          updatedExercise = {
+            ...exercise,
+            name: 'new name'
+          };
+          expectedUpdatedExercise = [
+            { ...updatedExercise, courseId, guideId }
+          ];
+        });
+
+        beforeEach(async () => {
+          mocks.mockAuth({ times: 3 });
+
+          const createdExercise = await requests.createExercise({
+            exercise, courseId, guideId, token
+          });
+          await requests.updateExercise({
+            exercise: updatedExercise,
+            courseId,
+            guideId,
+            exerciseId: createdExercise.body.exerciseId,
+            token
+          });
+          response = await requests.listExercises({ courseId, guideId, token });
+        });
+
+        it('status is OK', () => assert.equal(response.status, 200));
+
+        it('body has the created exercise', () => {
+          // eslint-disable-next-line no-param-reassign
+          response.body.forEach((ex) => delete ex.exerciseId);
+          assert.deepEqual(response.body, expectedUpdatedExercise);
+        });
+      });
+
+      describe('When the exercise does not exist', () => {
+        beforeEach(async () => {
+          updatedExercise = {
+            exercise: 'int',
+            name: 'integrala',
+            description: 'calcula la integrate',
+            type: 'integral',
+            difficulty: 'easy'
+          };
+        });
+
+        beforeEach(async () => {
+          mocks.mockAuth({});
+
+          error = await requests.updateExercise({
+            exercise: updatedExercise,
+            courseId,
+            guideId,
+            exerciseId: 'd59b1a1a-d40a-4211-a1d4-5faa82b85d75',
+            token
+          });
+        });
+
+        it('status is OK', () => assert.equal(error.status, 404));
+        it('message describes the error', () => assert.equal(error.body.message, 'Exercise not found'));
+      });
+    });
+  });
+
   describe('List exercises', () => {
     let derivativeEx;
     let integrateEx;
