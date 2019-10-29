@@ -10,6 +10,8 @@ const status = () => {
   return fetch(statusUrl);
 };
 
+// Exercises
+
 const createExercise = async ({
   token, courseId, guideId, exercise = {}
 }) => {
@@ -68,6 +70,18 @@ const addUser = async ({ token, courseId, user }) => {
   return { status: response.status, body: await response.json() };
 };
 
+// User exercises
+const listUserExercises = async ({ token, courseId, guideId }) => {
+  const addUserUrl = `${baseUrl}/courses/${courseId}/guides/${guideId}/user/exercises`;
+
+  const response = await fetch(addUserUrl, {
+    headers: {
+      authorization: token,
+      'Content-Type': 'application/json'
+    }
+  });
+  return { status: response.status, body: await response.json() };
+};
 
 function errorWrapper(funct) {
   return function inner(...args) {
@@ -83,6 +97,7 @@ module.exports = {
   addUser,
   createExercise: errorWrapper(createExercise),
   listExercises: errorWrapper(listExercises),
+  listUserExercises: errorWrapper(listUserExercises),
   updateExercise: errorWrapper(updateExercise),
   status
 };

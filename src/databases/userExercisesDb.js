@@ -6,13 +6,19 @@ const knex = require('knex')(configs.db); // eslint-disable-line
  * Get user exercises.
  *
  */
-const getExercises = async ({ userId }) => (
-  knex.select()
-    .from('student_exercises')
-    .where('user_id', userId)
-    .then(processDbResponse)
-);
-
+const listExercises = async ({
+  userId,
+  guideId,
+  courseId
+}) => knex
+  .select()
+  .from('student_exercises')
+  .innerJoin('exercises', function innerJoinFn() {
+    this.on('student_exercises.exercise_id', 'exercises.exercise_id');
+  })
+  .where(snakelize({ userId, guideId, courseId }))
+  .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
+  .then(processDbResponse);
 
 /**
  * Insert user exercises in bulk.
@@ -27,6 +33,6 @@ const insertExercises = async ({ userExercises }) => (
 );
 
 module.exports = {
-  getExercises,
-  insertExercises
+  insertExercises,
+  listExercises
 };

@@ -12,7 +12,7 @@ const addUser = async ({
   courseId,
   userId
 }) => {
-  const currentUserExercises = await userExercisesDB.getExercises({ userId });
+  const currentUserExercises = await userExercisesDB.listExercises({ context, userId });
 
   if (currentUserExercises.length) {
     throw createError.Conflict('Can not add exercises to an existing user');
@@ -29,6 +29,22 @@ const addUser = async ({
   return userExercisesDB.insertExercises({ context, userExercises });
 };
 
+const listExercises = async ({
+  context,
+  guideId,
+  courseId
+}) => {
+  const { user } = context;
+
+  return userExercisesDB.listExercises({
+    context,
+    userId: user.userId,
+    guideId,
+    courseId
+  });
+};
+
 module.exports = {
-  addUser
+  addUser,
+  listExercises
 };

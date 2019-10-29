@@ -9,13 +9,22 @@ describe('Integration user exercises tests', () => {
   let userId;
   let courseId;
   let guideId;
+  let studentProfile;
+
   let response;
 
   before(() => {
     courseId = 'course-id';
     guideId = 'guideId';
-    userId = 'userId';
+    userId = 'student';
     token = 'token';
+
+    studentProfile = {
+      userId: 'student',
+      name: 'pedro',
+      email: 'pedro@gmail',
+      rol: 'student'
+    };
     return cleanDb();
   });
 
@@ -51,41 +60,47 @@ describe('Integration user exercises tests', () => {
         const derivEx = await requests.createExercise({
           exercise: derivativeExercise, courseId, guideId, token
         });
-        derivativeExerciseId = derivEx.exerciseId;
+        derivativeExerciseId = derivEx.body.exerciseId;
         const integEx = await requests.createExercise({
           exercise: integrateExercise, courseId, guideId, token
         });
-        integrateExerciseId = integEx.exerciseId;
+        integrateExerciseId = integEx.body.exerciseId;
         response = await requests.addUser({ courseId, user: { userId }, token });
       });
 
       it('status is OK', () => assert.equal(response.status, 201));
 
-      describe('when then asking for the user exercises', () => {
+      describe('when asking for the user exercises', () => {
         let expectedUserExercises;
-  
+
         beforeEach(async () => {
           expectedUserExercises = [{
+            ...derivativeExercise,
             userId,
+            guideId,
+            courseId,
             exerciseId: derivativeExerciseId,
             state: 'incompleted',
             calification: null
           }, {
+            ...integrateExercise,
             userId,
+            guideId,
+            courseId,
             exerciseId: integrateExerciseId,
             state: 'incompleted',
             calification: null
           }];
         });
-  
+
         beforeEach(async () => {
-          mocks.mockAuth({});
-  
-          response = await requests.listExercises({ courseId, guideId, token });
+          mocks.mockAuth({ profile: studentProfile });
+
+          response = await requests.listUserExercises({ courseId, guideId, token });
         });
-  
+
         it('status is OK', () => assert.equal(response.status, 200));
-  
+
         it('should retrieve the created exercises', () => {
           assert.deepEqual(response.body, expectedUserExercises);
         });

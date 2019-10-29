@@ -4,11 +4,11 @@ const configs = require('../../configs/test');
 
 const usersServiceUrl = url.format(configs.services.usersService.url);
 
-const mockAuth = ({ status = 200, response = {}, times = 1 }) => {
+const mockAuth = ({ status = 200, profile = {}, times = 1 }) => {
   nock(usersServiceUrl)
     .get('/login')
     .times(times)
-    .reply(status, response);
+    .reply(status, profile);
 };
 
 module.exports = {

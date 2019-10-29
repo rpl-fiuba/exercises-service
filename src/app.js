@@ -40,13 +40,13 @@ router.post('/courses/:courseId/guides/:guideId/exercises', exerciseController.c
 
 router.get('/courses/:courseId/guides/:guideId/exercises', exerciseController.list); // TODO: PARA UN USUARIO? Y SI ES EL PROFE CAMBIAMOS?
 router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
-// router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
+// AUN NO router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
 
 // User Exercises
-// router.get('/courses/:courseId/guides/:guideId/users/:userId/exercises', exerciseController.list); // TODO: PARA UN USUARIO? Y SI ES EL PROFE CAMBIAMOS?
-// router.get('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.get);
-// router.delete('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
-// router.patch('/courses/:courseId/guides/:guideId/users/:userId/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
+router.get('/courses/:courseId/guides/:guideId/user/exercises', usersController.listExercises); // TODO: VALIDAR QUE EXISTA EN EL CURSO ? QUIZAS NI HAGA FALTA
+// router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.get);
+// router.delete('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
+// router.patch('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
 
 
 // Resolution
