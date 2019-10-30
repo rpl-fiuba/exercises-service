@@ -11,7 +11,6 @@ const status = () => {
 };
 
 // Exercises
-
 const createExercise = async ({
   token, courseId, guideId, exercise = {}
 }) => {
@@ -83,6 +82,44 @@ const listUserExercises = async ({ token, courseId, guideId }) => {
   return { status: response.status, body: await response.json() };
 };
 
+const getUserExercise = async ({
+  token,
+  courseId,
+  guideId,
+  exerciseId
+}) => {
+  const addUserUrl = `${baseUrl}/courses/${courseId}/guides/${guideId}/user/exercises/${exerciseId}`;
+
+  const response = await fetch(addUserUrl, {
+    headers: {
+      authorization: token,
+      'Content-Type': 'application/json'
+    }
+  });
+  return { status: response.status, body: await response.json() };
+};
+
+const updateUserExercise = async ({
+  token,
+  userId,
+  courseId,
+  guideId,
+  exerciseId,
+  exerciseMetadata
+}) => {
+  const updateExUrl = `${baseUrl}/courses/${courseId}/guides/${guideId}/user/exercises/${exerciseId}`;
+
+  const response = await fetch(`${updateExUrl}?userId=${userId}`, {
+    method: 'patch',
+    body: JSON.stringify(exerciseMetadata),
+    headers: {
+      authorization: token,
+      'Content-Type': 'application/json'
+    }
+  });
+  return { status: response.status, body: await response.json() };
+};
+
 function errorWrapper(funct) {
   return function inner(...args) {
     try {
@@ -97,7 +134,9 @@ module.exports = {
   addUser,
   createExercise: errorWrapper(createExercise),
   listExercises: errorWrapper(listExercises),
-  listUserExercises: errorWrapper(listUserExercises),
   updateExercise: errorWrapper(updateExercise),
+  getUserExercise: errorWrapper(getUserExercise),
+  listUserExercises: errorWrapper(listUserExercises),
+  updateUserExercise: errorWrapper(updateUserExercise),
   status
 };

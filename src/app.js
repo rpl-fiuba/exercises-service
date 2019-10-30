@@ -10,6 +10,8 @@ const initialMiddleware = require('./middlewares/initialMiddleware');
 const authMiddleware = require('./middlewares/authMiddleware');
 const requestLoggerMiddleware = require('./middlewares/requestLoggerMiddleware');
 
+// const professorMiddleware
+
 const statusController = require('./controllers/statusController');
 const usersController = require('./controllers/usersController');
 const exerciseController = require('./controllers/exerciseController');
@@ -44,9 +46,8 @@ router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exercis
 
 // User Exercises
 router.get('/courses/:courseId/guides/:guideId/user/exercises', usersController.listExercises); // TODO: VALIDAR QUE EXISTA EN EL CURSO ? QUIZAS NI HAGA FALTA
-// router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.get);
-// router.delete('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.remove); // TODO: SE BORRA PARA UNO, SE BORRA PARA TODOS. SOLO PROFE
-// router.patch('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', exerciseController.update); // TODO: SOLO PROFE
+router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', usersController.getExercise);
+router.patch('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', usersController.updateExercise);
 
 
 // Resolution

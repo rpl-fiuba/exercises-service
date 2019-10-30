@@ -1,3 +1,5 @@
+const createError = require('http-errors');
+
 const { processDbResponse, snakelize } = require('../utils/dbUtils');
 const configs = require('../config')();
 const knex = require('knex')(configs.db); // eslint-disable-line
@@ -10,15 +12,47 @@ const listExercises = async ({
   userId,
   guideId,
   courseId
-}) => knex
-  .select()
-  .from('student_exercises')
-  .innerJoin('exercises', function innerJoinFn() {
-    this.on('student_exercises.exercise_id', 'exercises.exercise_id');
-  })
-  .where(snakelize({ userId, guideId, courseId }))
-  .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
-  .then(processDbResponse);
+}) => (
+  knex('student_exercises')
+    .select()
+    .innerJoin('exercises', function innerJoinFn() {
+      this.on('student_exercises.exercise_id', 'exercises.exercise_id');
+    })
+    .where(snakelize({ userId, guideId, courseId }))
+    .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
+    .then(processDbResponse)
+);
+
+/**
+ * Get user exercise.
+ *
+ */
+const getExercise = async ({
+  userId,
+  guideId,
+  courseId,
+  exerciseId
+}) => (
+  knex('student_exercises')
+    .select()
+    .innerJoin('exercises', function innerJoin() { // TODO: INVESTIGAR DIFERENCIA DEL INNER JOIN
+      this.on('student_exercises.exercise_id', 'exercises.exercise_id');
+    })
+    .where('exercises.exercise_id', exerciseId)
+    .where(snakelize({
+      userId,
+      guideId,
+      courseId
+    }))
+    .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
+    .then(processDbResponse)
+    .then((response) => {
+      if (!response[0]) {
+        throw createError.NotFound('Exercise not found');
+      }
+      return response[0];
+    })
+);
 
 /**
  * Insert user exercises in bulk.
@@ -32,7 +66,31 @@ const insertExercises = async ({ userExercises }) => (
     .then((response) => response[0])
 );
 
+/**
+ * Update user exercise
+ *
+ */
+const updateExercise = async ({
+  userId,
+  exerciseId,
+  exerciseMetadata
+}) => (
+  knex('student_exercises')
+    .update(snakelize(exerciseMetadata))
+    .where(snakelize({ userId, exerciseId }))
+    .returning('*')
+    .then(processDbResponse)
+    .then((response) => {
+      if (!response[0]) {
+        throw createError.NotFound('Exercise not found');
+      }
+      return response[0];
+    })
+);
+
 module.exports = {
+  getExercise,
   insertExercises,
-  listExercises
+  listExercises,
+  updateExercise
 };
