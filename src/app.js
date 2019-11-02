@@ -11,7 +11,7 @@ const errorMiddleware = require('./middlewares/errorMiddleware');
 const initialMiddleware = require('./middlewares/initialMiddleware');
 const authMiddleware = require('./middlewares/authMiddleware');
 const requestLoggerMiddleware = require('./middlewares/requestLoggerMiddleware');
-// const courseValidatorMiddleware = require('./middlewares/courseValidatorMiddleware');
+const courseValidatorMiddleware = require('./middlewares/courseValidatorMiddleware');
 
 // Controllers
 const statusController = require('./controllers/statusController');
@@ -33,23 +33,22 @@ router.get('/ping', (req, res) => statusController.ping(req, res));
 
 router.use(initialMiddleware);
 router.use(authMiddleware);
-// router.use(courseValidatorMiddleware);
 
 // Users
 // TODO: validar que el usuario a agregar pertenece al curso
-router.post('/courses/:courseId/users', usersController.addUser);
+router.post('/courses/:courseId/users', courseValidatorMiddleware, usersController.addUser);
 
 // Exercises
 // TODO: validar que es el profesor del curso el que ejecuta estas acciones
-router.post('/courses/:courseId/guides/:guideId/exercises', exerciseController.create);
-router.get('/courses/:courseId/guides/:guideId/exercises', exerciseController.list);
-router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.update);
-router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId', exerciseController.remove);
+router.post('/courses/:courseId/guides/:guideId/exercises', courseValidatorMiddleware, exerciseController.create);
+router.get('/courses/:courseId/guides/:guideId/exercises', courseValidatorMiddleware, exerciseController.list);
+router.patch('/courses/:courseId/guides/:guideId/exercises/:exerciseId', courseValidatorMiddleware, exerciseController.update);
+router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId', courseValidatorMiddleware, exerciseController.remove);
 
 // User Exercises
-router.get('/courses/:courseId/guides/:guideId/user/exercises', usersController.listExercises);
-router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', usersController.getExercise);
-router.patch('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', usersController.updateExercise);
+router.get('/courses/:courseId/guides/:guideId/user/exercises', courseValidatorMiddleware, usersController.listExercises);
+router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', courseValidatorMiddleware, usersController.getExercise);
+router.patch('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', courseValidatorMiddleware, usersController.updateExercise);
 
 // Resolution
 // router.post('/courses/:courseId/guides/:guideId/exercises/:exerciseId/validate', resolutionController.validate);

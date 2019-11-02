@@ -8,6 +8,7 @@ describe('Integration exercises tests', () => {
   let newName;
   let courseId;
   let guideId;
+  let course;
   let professorProfile;
 
   let derivativeEx;
@@ -19,6 +20,11 @@ describe('Integration exercises tests', () => {
     guideId = 'guideId';
     token = 'token';
     newName = 'new name';
+    course = {
+      name: 'curso',
+      description: 'description',
+      courseId
+    };
 
     professorProfile = {
       userId: 'professor',
@@ -60,7 +66,8 @@ describe('Integration exercises tests', () => {
     });
 
     before(async () => {
-      mocks.mockAuth({});
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       createExerciseResponse = await requests.createExercise({
         exercise: derivativeEx, courseId, guideId, token
@@ -81,7 +88,9 @@ describe('Integration exercises tests', () => {
     let exercise;
 
     before(async () => {
-      mocks.mockAuth({});
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
+
       exercise = {
         ...derivativeEx,
         type: 'falopa'
@@ -102,6 +111,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
       exercise = {
         exercise: 'dx',
         description: 'calcula la derivada',
@@ -118,6 +128,26 @@ describe('Integration exercises tests', () => {
     it('message describes the error', () => assert.equal(errorResponse.body.message, 'exercise, name, type or difficulty have not been provided'));
   });
 
+  describe('Error: when the course does not exist', () => {
+    let errorResponse;
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({
+        courseId,
+        guideId,
+        course,
+        status: 404
+      });
+
+      errorResponse = await requests.createExercise({
+        exercise: derivativeEx, courseId, guideId, token
+      });
+    });
+
+    it('status is OK', () => assert.equal(errorResponse.status, 404));
+  });
+
   describe('Listing created exercises (by the professor)', () => {
     let listedExercises;
     let expectedExercises;
@@ -130,6 +160,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       listedExercises = await requests.listExercises({ courseId, guideId, token });
     });
@@ -157,6 +188,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       createExerciseResponse = await requests.createExercise({
         exercise: integrateEx, courseId, guideId, token
@@ -186,6 +218,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       updateExerciseResponse = await requests.updateExercise({
         exercise: updatedExercise,
@@ -212,6 +245,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       errorResponse = await requests.updateExercise({
         exercise: updatedExercise,
@@ -243,6 +277,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       listedExercises = await requests.listExercises({ courseId, guideId, token });
     });
@@ -261,6 +296,7 @@ describe('Integration exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       deletedExResponse = await requests.removeExercise({
         courseId,
@@ -277,7 +313,8 @@ describe('Integration exercises tests', () => {
     let deletedExResponse;
 
     before(async () => {
-      mocks.mockAuth({});
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       deletedExResponse = await requests.removeExercise({
         courseId,
@@ -303,7 +340,8 @@ describe('Integration exercises tests', () => {
     });
 
     before(async () => {
-      mocks.mockAuth({ });
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       listedExercises = await requests.listExercises({ courseId, guideId, token });
     });

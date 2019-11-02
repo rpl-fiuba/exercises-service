@@ -5,10 +5,10 @@ const { cleanDb, sanitizeResponse } = require('./utils/db');
 
 describe('Integration user exercises tests', () => {
   let token;
-  let error;
   let userId;
   let courseId;
   let guideId;
+  let course;
   let studentProfile;
   let professorProfile;
 
@@ -24,7 +24,11 @@ describe('Integration user exercises tests', () => {
     guideId = 'guideId';
     userId = 'student';
     token = 'token';
-
+    course = {
+      name: 'curso',
+      description: 'description',
+      courseId
+    };
     studentProfile = {
       userId: 'student',
       name: 'pedro',
@@ -48,6 +52,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ times: 2, profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course, times: 2 });
 
       derivativeExercise = {
         exercise: 'dx',
@@ -78,18 +83,35 @@ describe('Integration user exercises tests', () => {
   });
 
   describe('Error: Adding a non provided user', () => {
+    let errorResponse;
+
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, course });
 
-      error = await requests.addUser({ courseId, user: {}, token });
+      errorResponse = await requests.addUser({ courseId, user: {}, token });
     });
 
-    it('status is OK', () => assert.equal(error.status, 400));
+    it('status is OK', () => assert.equal(errorResponse.status, 400));
+  });
+
+  describe('Error: When the course does not exist', () => {
+    let errorResponse;
+
+    before(async () => {
+      mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, course, status: 404 });
+
+      errorResponse = await requests.addUser({ courseId, user: {}, token });
+    });
+
+    it('status is OK', () => assert.equal(errorResponse.status, 404));
   });
 
   describe('Adding user exercises', () => {
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, course });
 
       response = await requests.addUser({ courseId, user: { userId }, token });
     });
@@ -122,6 +144,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.listUserExercises({ courseId, guideId, token });
     });
@@ -150,6 +173,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.getUserExercise({
         exerciseId: derivativeExerciseId,
@@ -169,6 +193,7 @@ describe('Integration user exercises tests', () => {
   describe('Error: Asking a non existing user exercise', () => {
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.getUserExercise({
         exerciseId: 'falopa',
@@ -188,6 +213,7 @@ describe('Integration user exercises tests', () => {
   describe('Updating the derivative user exercise (by the professor)', () => {
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.updateUserExercise({
         exerciseMetadata: { calification: 10 },
@@ -219,6 +245,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.getUserExercise({
         exerciseId: derivativeExerciseId,
@@ -240,6 +267,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       deletedExResponse = await requests.removeExercise({
         courseId,
@@ -269,6 +297,7 @@ describe('Integration user exercises tests', () => {
 
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.listUserExercises({ courseId, guideId, token });
     });
@@ -283,6 +312,7 @@ describe('Integration user exercises tests', () => {
   describe('Error: Asking the derivative user exercise', () => {
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, guideId, course });
 
       response = await requests.getUserExercise({
         exerciseId: derivativeExerciseId,

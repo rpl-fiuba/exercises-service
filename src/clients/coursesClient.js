@@ -15,7 +15,7 @@ const getCourse = async ({ context, params }) => {
     coursePath = configs.services.coursesService.paths.course({ courseId });
   }
 
-  const path = `${coursesServiceUrl}/${coursePath}`;
+  const path = `${coursesServiceUrl}${coursePath}`;
 
   const response = await fetch(path, {
     headers: {
