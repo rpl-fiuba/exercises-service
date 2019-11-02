@@ -1,224 +1,319 @@
 const { assert } = require('chai');
 const requests = require('./utils/requests');
 const mocks = require('./utils/mocks');
-const { cleanDb } = require('./utils/db');
+const { cleanDb, sanitizeResponse } = require('./utils/db');
 
 describe('Integration exercises tests', () => {
   let token;
-  let error;
+  let newName;
   let courseId;
   let guideId;
-  let exercise;
-  let response;
+  let professorProfile;
+
+  let derivativeEx;
+  let integrateEx;
+  let integrateExerciseId;
 
   before(() => {
     courseId = 'course-id';
     guideId = 'guideId';
     token = 'token';
+    newName = 'new name';
+
+    professorProfile = {
+      userId: 'professor',
+      name: 'licha',
+      email: 'licha@gmail',
+      rol: 'professor'
+    };
+
+    derivativeEx = {
+      exercise: 'dx',
+      name: 'derivada',
+      description: 'calcula la derivada',
+      type: 'derivative',
+      difficulty: 'easy'
+    };
+    integrateEx = {
+      exercise: 'int',
+      name: 'integrala',
+      description: 'calcula la integrate',
+      type: 'integral',
+      difficulty: 'easy'
+    };
+
     return cleanDb();
   });
 
-  afterEach(() => cleanDb());
+  after(() => cleanDb());
 
-  describe('Create exercise', () => {
-    describe('When the user is the professor of the course', () => {
-      let expectedExercise;
+  describe('Creating derivative exercise (by the professor)', () => {
+    let createExerciseResponse;
+    let expectedExercise;
 
-      beforeEach(async () => {
-        exercise = {
-          exercise: 'dx',
-          name: 'derivada',
-          description: 'calcula la derivada',
-          type: 'derivative',
-          difficulty: 'easy'
-        };
-        expectedExercise = {
-          ...exercise,
-          guideId,
-          courseId
-        };
-      });
+    before(async () => {
+      expectedExercise = {
+        ...derivativeEx,
+        guideId,
+        courseId
+      };
+    });
 
-      beforeEach(async () => {
-        mocks.mockAuth({});
+    before(async () => {
+      mocks.mockAuth({});
 
-        response = await requests.createExercise({
-          exercise, courseId, guideId, token
-        });
-      });
-
-      it('status is OK', () => assert.equal(response.status, 201));
-
-      it('body has the created exercise', () => {
-        assert.property(response.body, 'exerciseId');
-        delete response.body.exerciseId;
-        assert.deepEqual(response.body, expectedExercise);
+      createExerciseResponse = await requests.createExercise({
+        exercise: derivativeEx, courseId, guideId, token
       });
     });
 
-    describe('When sending a wrong exercise type', () => {
-      beforeEach(async () => {
-        mocks.mockAuth({});
-        exercise = {
-          exercise: 'dx',
-          name: 'derivada',
-          description: 'calcula la derivada',
-          type: 'falopa',
-          difficulty: 'easy'
-        };
+    it('status is OK', () => assert.equal(createExerciseResponse.status, 201));
 
-        error = await requests.createExercise({
-          exercise, courseId, guideId, token
-        });
-      });
-
-      it('status is bad request', () => assert.equal(error.status, 400));
-      it('message describes the error', () => assert.equal(error.body.message, 'Invalid exercise type'));
-    });
-
-    describe('When not sending all the properties', () => {
-      beforeEach(async () => {
-        mocks.mockAuth({});
-        exercise = {
-          exercise: 'dx',
-          description: 'calcula la derivada',
-          type: 'derivative',
-          difficulty: 'easy'
-        };
-
-        error = await requests.createExercise({
-          exercise, courseId, guideId, token
-        });
-      });
-
-      it('status is bad request', () => assert.equal(error.status, 400));
-      it('message describes the error', () => assert.equal(error.body.message, 'exercise, name, type or difficulty have not been provided'));
+    it('body has the created exercise', () => {
+      assert.property(createExerciseResponse.body, 'exerciseId');
+      delete createExerciseResponse.body.exerciseId;
+      assert.deepEqual(sanitizeResponse(createExerciseResponse.body), expectedExercise);
     });
   });
 
-  describe('Update exercise', () => {
-    let updatedExercise;
-    let expectedUpdatedExercise;
+  describe('Error: Creating an invalid exercise (with wrong exercise type)', () => {
+    let errorResponse;
+    let exercise;
 
-    describe('When the user is the professor of the course', () => {
-      describe('When the exercise to update exists', () => {
-        beforeEach(async () => {
-          exercise = {
-            exercise: 'int',
-            name: 'integrala',
-            description: 'calcula la integrate',
-            type: 'integral',
-            difficulty: 'easy'
-          };
-          updatedExercise = {
-            ...exercise,
-            name: 'new name'
-          };
-          expectedUpdatedExercise = [
-            { ...updatedExercise, courseId, guideId }
-          ];
-        });
+    before(async () => {
+      mocks.mockAuth({});
+      exercise = {
+        ...derivativeEx,
+        type: 'falopa'
+      };
 
-        beforeEach(async () => {
-          mocks.mockAuth({ times: 3 });
-
-          const createdExercise = await requests.createExercise({
-            exercise, courseId, guideId, token
-          });
-          await requests.updateExercise({
-            exercise: updatedExercise,
-            courseId,
-            guideId,
-            exerciseId: createdExercise.body.exerciseId,
-            token
-          });
-          response = await requests.listExercises({ courseId, guideId, token });
-        });
-
-        it('status is OK', () => assert.equal(response.status, 200));
-
-        it('body has the created exercise', () => {
-          // eslint-disable-next-line no-param-reassign
-          response.body.forEach((ex) => delete ex.exerciseId);
-          assert.deepEqual(response.body, expectedUpdatedExercise);
-        });
-      });
-
-      describe('When the exercise does not exist', () => {
-        beforeEach(async () => {
-          updatedExercise = {
-            exercise: 'int',
-            name: 'integrala',
-            description: 'calcula la integrate',
-            type: 'integral',
-            difficulty: 'easy'
-          };
-        });
-
-        beforeEach(async () => {
-          mocks.mockAuth({});
-
-          error = await requests.updateExercise({
-            exercise: updatedExercise,
-            courseId,
-            guideId,
-            exerciseId: 'd59b1a1a-d40a-4211-a1d4-5faa82b85d75',
-            token
-          });
-        });
-
-        it('status is OK', () => assert.equal(error.status, 404));
-        it('message describes the error', () => assert.equal(error.body.message, 'Exercise not found'));
+      errorResponse = await requests.createExercise({
+        exercise, courseId, guideId, token
       });
     });
+
+    it('status is bad request', () => assert.equal(errorResponse.status, 400));
+    it('message describes the error', () => assert.equal(errorResponse.body.message, 'Invalid exercise type'));
   });
 
-  describe('List exercises', () => {
-    let derivativeEx;
-    let integrateEx;
+  describe('Error: Creating an invalid exercise (not sending all the properties)', () => {
+    let errorResponse;
+    let exercise;
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      exercise = {
+        exercise: 'dx',
+        description: 'calcula la derivada',
+        type: 'derivative',
+        difficulty: 'easy'
+      };
+
+      errorResponse = await requests.createExercise({
+        exercise, courseId, guideId, token
+      });
+    });
+
+    it('status is bad request', () => assert.equal(errorResponse.status, 400));
+    it('message describes the error', () => assert.equal(errorResponse.body.message, 'exercise, name, type or difficulty have not been provided'));
+  });
+
+  describe('Listing created exercises (by the professor)', () => {
+    let listedExercises;
     let expectedExercises;
 
-    describe('When the user is the professor of the course', () => {
-      beforeEach(async () => {
-        derivativeEx = {
-          exercise: 'dx',
-          name: 'derivada',
-          description: 'calcula la derivada',
-          type: 'derivative',
-          difficulty: 'easy'
-        };
-        integrateEx = {
-          exercise: 'int',
-          name: 'integrala',
-          description: 'calcula la integrate',
-          type: 'integral',
-          difficulty: 'easy'
-        };
-        expectedExercises = [
-          { ...derivativeEx, courseId, guideId },
-          { ...integrateEx, courseId, guideId }
-        ];
+    before(() => {
+      expectedExercises = [
+        { ...derivativeEx, courseId, guideId }
+      ];
+    });
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      listedExercises = await requests.listExercises({ courseId, guideId, token });
+    });
+
+    it('status is OK', () => assert.equal(listedExercises.status, 200));
+
+    it('body has the created exercise', () => {
+      // eslint-disable-next-line no-param-reassign
+      listedExercises.body.forEach((ex) => delete ex.exerciseId);
+      assert.deepEqual(sanitizeResponse(listedExercises.body), expectedExercises);
+    });
+  });
+
+  describe('Creating integrate exercise (by the professor)', () => {
+    let createExerciseResponse;
+    let expectedExercise;
+
+    before(async () => {
+      expectedExercise = {
+        ...integrateEx,
+        guideId,
+        courseId
+      };
+    });
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      createExerciseResponse = await requests.createExercise({
+        exercise: integrateEx, courseId, guideId, token
       });
+      integrateExerciseId = createExerciseResponse.body.exerciseId;
+    });
 
-      beforeEach(async () => {
-        mocks.mockAuth({ times: 3 });
+    it('status is OK', () => assert.equal(createExerciseResponse.status, 201));
 
-        await requests.createExercise({
-          exercise: derivativeEx, courseId, guideId, token
-        });
-        await requests.createExercise({
-          exercise: integrateEx, courseId, guideId, token
-        });
-        response = await requests.listExercises({ courseId, guideId, token });
+    it('body has the created exercise', () => {
+      assert.property(createExerciseResponse.body, 'exerciseId');
+      delete createExerciseResponse.body.exerciseId;
+      assert.deepEqual(sanitizeResponse(createExerciseResponse.body), expectedExercise);
+    });
+  });
+
+  describe('Updating exercise (by the professor)', () => {
+    let updateExerciseResponse;
+    let updatedExercise;
+
+    before(async () => {
+      updatedExercise = {
+        ...integrateEx,
+        name: newName
+      };
+    });
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      updateExerciseResponse = await requests.updateExercise({
+        exercise: updatedExercise,
+        courseId,
+        guideId,
+        exerciseId: integrateExerciseId,
+        token
       });
+    });
 
-      it('status is OK', () => assert.equal(response.status, 200));
+    it('status is OK', () => assert.equal(updateExerciseResponse.status, 201));
+  });
 
-      it('body has the created exercise', () => {
-        // eslint-disable-next-line no-param-reassign
-        response.body.forEach((ex) => delete ex.exerciseId);
-        assert.deepEqual(response.body, expectedExercises);
+  describe('Error: Updating a non existing exercise', () => {
+    let updatedExercise;
+    let errorResponse;
+
+    before(async () => {
+      updatedExercise = {
+        ...integrateEx,
+        name: newName
+      };
+    });
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      errorResponse = await requests.updateExercise({
+        exercise: updatedExercise,
+        courseId,
+        guideId,
+        exerciseId: 'fafafa',
+        token
       });
+    });
+
+    it('status is OK', () => assert.equal(errorResponse.status, 404));
+    it('message describes the error', () => assert.equal(errorResponse.body.message, 'Exercise not found'));
+  });
+
+  describe('Listing updated exercises (by the professor)', () => {
+    let listedExercises;
+    let expectedExercises;
+
+    before(() => {
+      expectedExercises = [
+        {
+          ...derivativeEx, courseId, guideId
+        },
+        {
+          ...integrateEx, courseId, guideId, name: newName
+        }
+      ];
+    });
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      listedExercises = await requests.listExercises({ courseId, guideId, token });
+    });
+
+    it('status is OK', () => assert.equal(listedExercises.status, 200));
+
+    it('body has the updated exercise', () => {
+      // eslint-disable-next-line no-param-reassign
+      listedExercises.body.forEach((ex) => delete ex.exerciseId);
+      assert.deepEqual(sanitizeResponse(listedExercises.body), expectedExercises);
+    });
+  });
+
+  describe('Deleting exercise (by the professor)', () => {
+    let deletedExResponse;
+
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+
+      deletedExResponse = await requests.removeExercise({
+        courseId,
+        guideId,
+        exerciseId: integrateExerciseId,
+        token
+      });
+    });
+
+    it('status is OK', () => assert.equal(deletedExResponse.status, 204));
+  });
+
+  describe('Deleting the same exercise again (a non existing exercise)', () => {
+    let deletedExResponse;
+
+    before(async () => {
+      mocks.mockAuth({});
+
+      deletedExResponse = await requests.removeExercise({
+        courseId,
+        guideId,
+        exerciseId: integrateExerciseId,
+        token
+      });
+    });
+
+    it('status is OK', () => assert.equal(deletedExResponse.status, 204));
+  });
+
+  describe('Listing exercises should not retrive the deleted (by the professor)', () => {
+    let listedExercises;
+    let expectedExercises;
+
+    before(() => {
+      expectedExercises = [
+        {
+          ...derivativeEx, courseId, guideId
+        }
+      ];
+    });
+
+    before(async () => {
+      mocks.mockAuth({ });
+
+      listedExercises = await requests.listExercises({ courseId, guideId, token });
+    });
+
+    it('status is OK', () => assert.equal(listedExercises.status, 200));
+
+    it('body has the created exercise', () => {
+      // eslint-disable-next-line no-param-reassign
+      listedExercises.body.forEach((ex) => delete ex.exerciseId);
+      assert.deepEqual(sanitizeResponse(listedExercises.body), expectedExercises);
     });
   });
 });

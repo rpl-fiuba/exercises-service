@@ -77,7 +77,7 @@ const updateExercise = async ({
   exerciseId,
   exerciseMetadata
 }) => (
-  userExercisesDB.updateExercise({ // TODO: VALIDAR QUE EXISTA EL EJERCICIOS ? Y SI LO PONEMOS EN UN MIDDLEWARE ?
+  userExercisesDB.updateExercise({
     context,
     userId,
     guideId,

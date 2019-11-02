@@ -22,6 +22,17 @@ module.exports = {
       paths: {
         auth: 'login'
       }
+    },
+    coursesService: {
+      url: {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5001'
+      },
+      paths: {
+        course: ({ courseId }) => `'/courses/${courseId}`,
+        guide: ({ courseId, guideId }) => `'/courses/${courseId}/guides/${guideId}`
+      }
     }
   },
   db: {

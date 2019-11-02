@@ -19,7 +19,7 @@ const listExercises = async ({
       this.on('student_exercises.exercise_id', 'exercises.exercise_id');
     })
     .where(snakelize({ userId, guideId, courseId }))
-    .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
+    .orderBy('exercises.created_at')
     .then(processDbResponse)
 );
 
@@ -35,7 +35,7 @@ const getExercise = async ({
 }) => (
   knex('student_exercises')
     .select()
-    .innerJoin('exercises', function innerJoin() { // TODO: INVESTIGAR DIFERENCIA DEL INNER JOIN
+    .innerJoin('exercises', function innerJoin() {
       this.on('student_exercises.exercise_id', 'exercises.exercise_id');
     })
     .where('exercises.exercise_id', exerciseId)
@@ -44,7 +44,7 @@ const getExercise = async ({
       guideId,
       courseId
     }))
-    .orderBy('exercises.name') // TODO: CAMBIAR POR CREATED DATE
+    .orderBy('exercises.created_at')
     .then(processDbResponse)
     .then((response) => {
       if (!response[0]) {

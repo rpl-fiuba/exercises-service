@@ -10,6 +10,7 @@ exports.up = (knex) => {
       exercise_id CHARACTER VARYING(64) PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
       guide_id    CHARACTER VARYING(128) NOT NULL,
       course_id   CHARACTER VARYING(128) NOT NULL,
+      created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
       exercise    TEXT NOT NULL,
       name        CHARACTER VARYING(64) NOT NULL,
@@ -21,6 +22,7 @@ exports.up = (knex) => {
     CREATE TABLE student_exercises(
       user_id      CHARACTER VARYING(64) NOT NULL,
       exercise_id  CHARACTER VARYING(64) NOT NULL,
+      created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
       state        exercise_state NOT NULL DEFAULT 'incompleted',
       calification INT DEFAULT NULL,

@@ -8,6 +8,7 @@ const sanitizeResponse = (response) => {
     return response.map((obj) => sanitizeResponse(obj));
   }
   delete response.id;
+  delete response.createdAt;
   return response;
 };
 

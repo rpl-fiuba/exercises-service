@@ -55,6 +55,24 @@ const listExercises = async ({ token, courseId, guideId }) => {
   return { status: response.status, body: await response.json() };
 };
 
+const removeExercise = async ({
+  token,
+  courseId,
+  guideId,
+  exerciseId
+}) => {
+  const listExUrl = `${baseUrl}/courses/${courseId}/guides/${guideId}/exercises/${exerciseId}`;
+
+  const response = await fetch(listExUrl, {
+    method: 'delete',
+    headers: {
+      authorization: token,
+      'Content-Type': 'application/json'
+    }
+  });
+  return { status: response.status };
+};
+
 const addUser = async ({ token, courseId, user }) => {
   const addUserUrl = `${baseUrl}/courses/${courseId}/users`;
 
@@ -131,8 +149,9 @@ function errorWrapper(funct) {
 }
 
 module.exports = {
-  addUser,
+  addUser: errorWrapper(addUser),
   createExercise: errorWrapper(createExercise),
+  removeExercise: errorWrapper(removeExercise),
   listExercises: errorWrapper(listExercises),
   updateExercise: errorWrapper(updateExercise),
   getUserExercise: errorWrapper(getUserExercise),

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const createError = require('http-errors');
 const expressify = require('expressify')();
-const usersService = require('../services/usersService'); // TODO: CAMBIAR NOMBRE A USERS EXERCISES
+const usersService = require('../services/usersService');
 
 const extractMetadata = (body) => (
   _.pick(body, ['calification'])

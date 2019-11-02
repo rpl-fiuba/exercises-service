@@ -20,7 +20,6 @@ const validateMetadata = (metadata) => {
  *
  */
 const create = async (req, res) => {
-  // const { user } = req.context;
   const {
     courseId,
     guideId
@@ -51,7 +50,6 @@ const create = async (req, res) => {
  *
  */
 const list = async (req, res) => {
-  // const { user } = req.context;
   const {
     courseId,
     guideId
@@ -93,8 +91,30 @@ const update = async (req, res) => {
   return res.status(201).json(updatedExercise);
 };
 
+/**
+ * Remove exercise.
+ *
+ */
+const remove = async (req, res) => {
+  const {
+    courseId,
+    guideId,
+    exerciseId
+  } = req.params;
+
+  await exerciseService.remove({
+    context: req.context,
+    guideId,
+    courseId,
+    exerciseId
+  });
+
+  return res.status(204).json({});
+};
+
 module.exports = expressify({
   create,
   list,
+  remove,
   update
 });

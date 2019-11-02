@@ -27,7 +27,7 @@ const list = async ({
   guideId,
   courseId
 }) => (
-  exercisesDB.listExercises({ // TODO: aca hacemos la separacion por usuario
+  exercisesDB.listExercises({
     context,
     guideId,
     courseId
@@ -54,8 +54,28 @@ const update = async ({
   })
 );
 
+/**
+ * Remove exercise.
+ *
+ */
+const remove = async ({
+  context,
+  guideId,
+  courseId,
+  exerciseId
+}) => (
+  exercisesDB.removeExercise({
+    context,
+    guideId,
+    courseId,
+    exerciseId
+  })
+);
+
+
 module.exports = {
   create,
   list,
+  remove,
   update
 };
