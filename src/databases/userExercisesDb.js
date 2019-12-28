@@ -18,7 +18,11 @@ const listExercises = async ({
     .innerJoin('exercises', function innerJoinFn() {
       this.on('student_exercises.exercise_id', 'exercises.exercise_id');
     })
-    .where(snakelize({ userId, guideId, courseId }))
+    .where(snakelize({
+      userId,
+      guideId,
+      courseId
+    }))
     .orderBy('exercises.created_at')
     .then(processDbResponse)
 );
@@ -77,7 +81,10 @@ const updateExercise = async ({
 }) => (
   knex('student_exercises')
     .update(snakelize(exerciseMetadata))
-    .where(snakelize({ userId, exerciseId }))
+    .where(snakelize({
+      userId,
+      exerciseId
+    }))
     .returning('*')
     .then(processDbResponse)
     .then((response) => {

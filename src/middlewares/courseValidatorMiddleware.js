@@ -9,7 +9,10 @@ module.exports = async (req, res, next) => {
 
   try {
     // if not fails, indicates that the course exists
-    await coursesClient.getCourse({ context, params });
+    await coursesClient.getCourse({
+      context,
+      params
+    });
     next();
   } catch (err) {
     next(err);
