@@ -14,7 +14,7 @@ const localhosts = {
 
 const resolveHosts = () => {
   const { DOCKER } = process.env;
-  return DOCKER ? 'exercises-db' : 'localhost';
+  return DOCKER ? dockerHosts : localhosts;
 };
 
 module.exports = {

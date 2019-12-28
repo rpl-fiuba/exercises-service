@@ -8,7 +8,7 @@ const usersServiceUrl = url.format(configs.services.usersService.url);
 const authenticate = async ({ context }) => {
   const authPath = configs.services.usersService.paths.auth;
   const authUrl = `${usersServiceUrl}/${authPath}`;
-
+  console.log(context)
   const response = await fetch(authUrl, {
     headers: {
       Authorization: context.accessToken
