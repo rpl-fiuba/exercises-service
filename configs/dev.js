@@ -1,3 +1,22 @@
+const dockerHosts = {
+  courses: 'courses-service',
+  db: 'exercises-db',
+  users: 'users-service',
+  mathSolver: 'math-solver',
+}
+
+const localhosts = {
+  courses: 'localhost',
+  db: 'localhost',
+  users: 'localhost',
+  mathSolver: 'localhost',
+}
+
+const resolveHosts = () => {
+  const { DOCKER } = process.env;
+  return DOCKER ? dockerHosts : localhosts;
+};
+
 module.exports = {
   app: {
     protocol: 'http',
@@ -8,7 +27,7 @@ module.exports = {
     mathSolver: {
       url: {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: resolveHosts().mathSolver,
         port: '5000'
       },
       paths: {}
@@ -16,7 +35,7 @@ module.exports = {
     usersService: {
       url: {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: resolveHosts().users,
         port: '7000'
       },
       paths: {
@@ -26,7 +45,7 @@ module.exports = {
     coursesService: {
       url: {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: resolveHosts().courses,
         port: '5001'
       },
       paths: {
@@ -39,7 +58,7 @@ module.exports = {
     client: 'pg',
     version: '10.10',
     connection: {
-      host: '127.0.0.1',
+      host: resolveHosts().db,
       user: 'postgres',
       password: 'postgres',
       database: 'exercises_service'

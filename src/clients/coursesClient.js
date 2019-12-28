@@ -10,7 +10,10 @@ const getCourse = async ({ context, params }) => {
 
   let coursePath;
   if (guideId) {
-    coursePath = configs.services.coursesService.paths.guide({ courseId, guideId });
+    coursePath = configs.services.coursesService.paths.guide({
+      courseId,
+      guideId
+    });
   } else {
     coursePath = configs.services.coursesService.paths.course({ courseId });
   }
