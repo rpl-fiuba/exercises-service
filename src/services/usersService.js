@@ -1,5 +1,4 @@
 const createError = require('http-errors');
-
 const exercisesDB = require('../databases/exercisesDb');
 const userExercisesDB = require('../databases/userExercisesDb');
 
@@ -26,6 +25,7 @@ const addUser = async ({
   });
   const userExercises = courseExercises.map((exercise) => ({
     exerciseId: exercise.exerciseId,
+    stepList: JSON.stringify([]),
     userId
   }));
 
@@ -66,13 +66,16 @@ const getExercise = async ({
 }) => {
   const { user } = context;
 
-  return userExercisesDB.getExercise({
+  const exercise = await userExercisesDB.getExercise({
     context,
     userId: user.userId,
     guideId,
     courseId,
     exerciseId
   });
+  exercise.stepList = JSON.parse(exercise.stepList);
+
+  return exercise;
 };
 
 const updateExercise = async ({

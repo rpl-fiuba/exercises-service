@@ -36,8 +36,7 @@ const listExercises = async ({ courseId, guideId }) => {
       guideId
     }))
     .orderBy('created_at')
-    .then(processDbResponse)
-    .catch((e) => console.log(e));
+    .then(processDbResponse);
 };
 
 /**
