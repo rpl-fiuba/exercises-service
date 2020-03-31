@@ -44,18 +44,21 @@ const addUser = async (req, res) => {
  *
  */
 const listExercises = async (req, res) => {
-  const {
-    courseId,
-    guideId
-  } = req.params;
+  const { context } = req;
+  const { courseId, guideId } = req.params;
+
+  const filterMetadata = req.params.userId ? { state: 'delivered' } : {};
+  const userId = req.params.userId || context.user.userId;
 
   const exercises = await usersService.listExercises({
     context: req.context,
     guideId,
-    courseId
+    courseId,
+    userId,
+    metadata: filterMetadata
   });
-  return res.status(200)
-    .json(exercises);
+
+  return res.status(200).json(exercises);
 };
 
 /**
@@ -69,14 +72,17 @@ const getExercise = async (req, res) => {
     exerciseId
   } = req.params;
 
+  const { context } = req;
+  const userId = req.params.userId || context.user.userId;
+
   const exercise = await usersService.getExercise({
     context: req.context,
     guideId,
     courseId,
-    exerciseId
+    exerciseId,
+    userId
   });
-  return res.status(200)
-    .json(exercise);
+  return res.status(200).json(exercise);
 };
 
 const updateExercise = async (req, res) => {

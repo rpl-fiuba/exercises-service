@@ -83,17 +83,18 @@ const addingExercisesToUsers = async ({
 const listExercises = async ({
   context,
   guideId,
-  courseId
-}) => {
-  const { user } = context;
-
-  return userExercisesDB.listExercises({
+  courseId,
+  userId,
+  metadata
+}) => (
+  userExercisesDB.listExercises({
     context,
-    userId: user.userId,
+    userId,
     guideId,
-    courseId
-  });
-};
+    courseId,
+    metadata
+  })
+);
 
 /**
  * Get user exercise.
@@ -103,16 +104,11 @@ const getExercise = async ({
   context,
   guideId,
   courseId,
-  exerciseId
+  exerciseId,
+  userId
 }) => {
-  const { user } = context;
-
   const exercise = await userExercisesDB.getExercise({
-    context,
-    userId: user.userId,
-    guideId,
-    courseId,
-    exerciseId
+    context, userId, guideId, courseId, exerciseId
   });
 
   exercise.stepList = JSON.parse(exercise.stepList);

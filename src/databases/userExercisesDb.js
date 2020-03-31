@@ -17,7 +17,8 @@ const DEFAULT_METADATA = {
 const listExercises = async ({
   userId,
   guideId,
-  courseId
+  courseId,
+  metadata = {}
 }) => (
   knex.queryBuilder()
     .select('state', 'user_id', 'calification', 'ex.*')
@@ -34,9 +35,13 @@ const listExercises = async ({
       if (guideId) {
         queryBuilder.where('ex.guide_id', guideId);
       }
+      if (metadata.state) {
+        queryBuilder.where('se.state', metadata.state);
+      }
     })
     .where('user_id', userId)
     .orderBy('ex.created_at')
+    .orderBy('ex.name')
     .then(processDbResponse)
 );
 
