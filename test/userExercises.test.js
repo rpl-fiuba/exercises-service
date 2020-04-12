@@ -43,6 +43,8 @@ describe('Integration user exercises tests', () => {
       professors: [professorProfile],
       users: [professorProfile, studentProfile]
     };
+
+    mocks.mockGenerateMathTree({ status: 200, times: 2 });
   });
 
   before(() => cleanDb());
@@ -61,14 +63,18 @@ describe('Integration user exercises tests', () => {
         name: 'derivada',
         description: 'calcula la derivada',
         type: 'derivative',
-        difficulty: 'easy'
+        difficulty: 'easy',
+        pipelineStatus: 'generated',
+        initialHint: null,
       };
       integrateExercise = {
         problemInput: 'dx',
         name: 'integrate',
         description: 'calcula la integral',
         type: 'integral',
-        difficulty: 'easy'
+        difficulty: 'easy',
+        pipelineStatus: 'generated',
+        initialHint: null,
       };
       mocks.mockValidateExercise({ courseId, guideId, ...derivativeExercise });
       mocks.mockValidateExercise({ courseId, guideId, ...integrateExercise });
@@ -81,6 +87,9 @@ describe('Integration user exercises tests', () => {
       });
       derivativeExerciseId = derivResponse.body.exerciseId;
       integrateExerciseId = integResponse.body.exerciseId;
+
+      // To wait the math tree is generated and the exercise is marked as generated
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     it('exercise added correctly', () => assert.equal(derivResponse.status, 201));

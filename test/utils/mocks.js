@@ -31,14 +31,15 @@ const mockValidateExercise = ({
   status = 200,
   problemInput,
   type,
-  times = 1
+  times = 1,
+  response = {}
 }) => {
-  const validatePath = configs.services.mathResolverService.paths.validate;
+  const validatePath = configs.services.mathResolverService.paths.evaluate;
 
   nock(mathResolverServiceUrl)
-    .post(validatePath, { problemInput, type })
+    .post(validatePath, { problem_input: problemInput, type })
     .times(times)
-    .reply(status, {});
+    .reply(status, response);
 };
 
 const mockResolveExercise = ({
@@ -46,6 +47,7 @@ const mockResolveExercise = ({
   type,
   problemInput,
   stepList,
+  mathTree = {},
   currentExpression,
   times = 1,
   response = { exerciseStatus: 'valid' }
@@ -53,14 +55,37 @@ const mockResolveExercise = ({
   const validatePath = configs.services.mathResolverService.paths.resolve;
 
   nock(mathResolverServiceUrl)
-    .post(validatePath, { problemInput, type, stepList, currentExpression })
+    .post(validatePath, {
+      type,
+      math_tree: mathTree,
+      problem_input: problemInput,
+      step_list: stepList,
+      current_expression: currentExpression
+    })
     .times(times)
     .reply(status, response);
 };
 
+const mockGenerateMathTree = ({
+  status = 200,
+  // type,
+  // problemInput,
+  times = 1,
+  response = { tree: 'input' }
+}) => {
+  const validatePath = configs.services.mathResolverService.paths.mathTree;
+
+  nock(mathResolverServiceUrl)
+    .post(validatePath)
+    .times(times)
+    .reply(status, response);
+};
+
+
 module.exports = {
   mockAuth,
   mockGetCourse,
+  mockGenerateMathTree,
   mockResolveExercise,
   mockValidateExercise
 };

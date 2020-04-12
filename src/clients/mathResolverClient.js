@@ -1,21 +1,50 @@
 const { NODE_ENV } = process.env;
 const url = require('url');
+const fs = require('fs');
+const path = require('path');
 const fetch = require('node-fetch');
+const createError = require('http-errors');
 const requestUtils = require('../utils/requestUtils');
 const configs = require('../config')();
 
 const mathResolverServiceUrl = url.format(configs.services.mathResolverService.url);
 
-const validate = async ({ context, problemInput, type }) => {
-  if (NODE_ENV === 'dev') { // TODO: remove it
-    return Promise.resolve({});
-  }
-  const validatePath = configs.services.mathResolverService.paths.validate;
-  const path = `${mathResolverServiceUrl}${validatePath}`;
+const evaluate = async ({ context, problemInput, type }) => {
+  const evaluatePath = configs.services.mathResolverService.paths.evaluate;
+  const fullPath = `${mathResolverServiceUrl}${evaluatePath}`;
 
-  const response = await fetch(path, {
+  const response = await fetch(fullPath, {
     method: 'post',
-    body: JSON.stringify({ problemInput, type }),
+    body: JSON.stringify({ problem_input: problemInput, type }),
+    headers: {
+      authorization: context.accessToken,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  try {
+    return requestUtils.processResponse(response);
+  } catch (e) {
+    if (e.status === 400) {
+      throw createError(400, { message: 'Ejercicio mal formado' });
+    }
+    throw e;
+  }
+};
+
+const generateMathTree = async ({ context, problemInput, type }) => {
+  let theorems = [];
+  if (type === 'derivative') {
+    theorems = fs.readFileSync(path.resolve(__dirname, './derivative-theorems.json'));
+  } else if (type === 'integral') {
+    theorems = fs.readFileSync(path.resolve(__dirname, './integral-theorems.json'));
+  }
+  const mathTreePath = configs.services.mathResolverService.paths.mathTree;
+  const fullPath = `${mathResolverServiceUrl}${mathTreePath}`;
+
+  const response = await fetch(fullPath, {
+    method: 'post',
+    body: JSON.stringify({ problem_input: problemInput, type, theorems: JSON.parse(theorems) }),
     headers: {
       authorization: context.accessToken,
       'Content-Type': 'application/json'
@@ -26,26 +55,19 @@ const validate = async ({ context, problemInput, type }) => {
 };
 
 const resolve = async ({
-  context, type, problemInput, stepList, currentExpression
+  context, type, problemInput, stepList, mathTree = {}, currentExpression
 }) => {
-  if (NODE_ENV === 'dev') { // TODO: remove it
-    const possibleResponses = ['valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'resolved'];
-
-    return Promise.resolve({
-      exerciseStatus: possibleResponses[Math.floor(Math.random() * possibleResponses.length)]
-    });
-  }
-
   const resolvePath = configs.services.mathResolverService.paths.resolve;
-  const path = `${mathResolverServiceUrl}${resolvePath}`;
+  const fullPath = `${mathResolverServiceUrl}${resolvePath}`;
 
-  const response = await fetch(path, {
+  const response = await fetch(fullPath, {
     method: 'post',
     body: JSON.stringify({
       type,
-      problemInput,
-      stepList,
-      currentExpression
+      problem_input: problemInput,
+      step_list: stepList,
+      math_tree: mathTree,
+      current_expression: currentExpression
     }),
     headers: {
       authorization: context.accessToken,
@@ -53,7 +75,19 @@ const resolve = async ({
     }
   });
 
-  return requestUtils.processResponse(response);
+  if (response.status <= 300) {
+    return requestUtils.processResponse(response);
+  }
+
+  console.log('Error while trying to resolve exercise');
+
+  if (NODE_ENV === 'dev') { // TODO: remove it
+    const possibleResponses = ['valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'resolved'];
+    return Promise.resolve({
+      exerciseStatus: possibleResponses[Math.floor(Math.random() * possibleResponses.length)]
+    });
+  }
+  throw createError(response.status, await response.json());
 };
 
 const askHelp = async ({ context, type, problemInput, stepList }) => {
@@ -62,9 +96,9 @@ const askHelp = async ({ context, type, problemInput, stepList }) => {
   }
 
   const helpPath = configs.services.mathResolverService.paths.help;
-  const path = `${mathResolverServiceUrl}${helpPath}`;
+  const fullPath = `${mathResolverServiceUrl}${helpPath}`;
 
-  const response = await fetch(path, {
+  const response = await fetch(fullPath, {
     method: 'post',
     body: JSON.stringify({
       type,
@@ -82,6 +116,7 @@ const askHelp = async ({ context, type, problemInput, stepList }) => {
 
 module.exports = {
   askHelp,
+  evaluate,
+  generateMathTree,
   resolve,
-  validate
 };

@@ -12,6 +12,7 @@ describe('Integration resolve exercises tests', () => {
   let newName;
   let exerciseName;
   let newProblemInput;
+  let mathTree;
   let studentProfile;
   let professorProfile;
 
@@ -52,10 +53,34 @@ describe('Integration resolve exercises tests', () => {
       professors: [professorProfile],
       users: [professorProfile, studentProfile]
     };
+    mathTree = { tree: 'input' };
   });
 
   before(() => cleanDb());
   after(() => cleanDb());
+
+  describe('Evaluate exercise before creating', () => {
+    let expectedResponse;
+
+    before(async () => {
+      const exercise = {
+        problemInput: 'dx',
+        type: 'derivative'
+      };
+      expectedResponse = { result: 'result' };
+
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+      mocks.mockValidateExercise({ courseId, guideId, ...exercise, response: expectedResponse });
+
+      response = await requests.evaluateExercise({
+        exercise, courseId, guideId, token
+      });
+    });
+
+    it('exercise added correctly', () => assert.equal(response.status, 200));
+    it('exercise added correctly', () => assert.deepEqual(response.body, expectedResponse));
+  });
 
   describe('Adding an exercise to course', () => {
     let derivResponse;
@@ -66,17 +91,22 @@ describe('Integration resolve exercises tests', () => {
         name: exerciseName,
         description: 'calcula la derivada',
         type: 'derivative',
-        difficulty: 'easy'
+        difficulty: 'easy',
+        initialHint: null
       };
 
       mocks.mockAuth({ profile: professorProfile });
       mocks.mockGetCourse({ courseId, course });
       mocks.mockValidateExercise({ courseId, guideId, ...derivativeExercise });
+      mocks.mockGenerateMathTree({ response: mathTree });
 
       derivResponse = await requests.createExercise({
         exercise: derivativeExercise, courseId, guideId, token
       });
       derivativeExerciseId = derivResponse.body.exerciseId;
+
+      // To wait the math tree is generated and the exercise is marked as generated
+      await new Promise((resolve) => setTimeout(resolve, 200));
     });
 
     it('exercise added correctly', () => assert.equal(derivResponse.status, 201));
@@ -101,6 +131,7 @@ describe('Integration resolve exercises tests', () => {
         type: derivativeExercise.type,
         problemInput: derivativeExercise.problemInput,
         stepList: [],
+        mathTree,
         currentExpression: firstExpression,
         response: { exerciseStatus: 'invalid' }
       });
@@ -151,6 +182,7 @@ describe('Integration resolve exercises tests', () => {
         type: derivativeExercise.type,
         problemInput: derivativeExercise.problemInput,
         stepList: [],
+        mathTree,
         currentExpression: firstExpression,
         response: { exerciseStatus: 'invalid' }
       });
@@ -201,6 +233,7 @@ describe('Integration resolve exercises tests', () => {
         type: derivativeExercise.type,
         problemInput: derivativeExercise.problemInput,
         stepList: [],
+        mathTree,
         currentExpression: firstExpression,
         response: { exerciseStatus: 'valid' }
       });
@@ -232,6 +265,7 @@ describe('Integration resolve exercises tests', () => {
         courseId,
         exerciseId: derivativeExerciseId,
         state: 'incompleted',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression]
       };
@@ -264,6 +298,7 @@ describe('Integration resolve exercises tests', () => {
         type: derivativeExercise.type,
         problemInput: derivativeExercise.problemInput,
         stepList: [firstExpression],
+        mathTree,
         currentExpression: secondExpression,
         response: { exerciseStatus: 'resolved' }
       });
@@ -295,6 +330,7 @@ describe('Integration resolve exercises tests', () => {
         courseId,
         exerciseId: derivativeExerciseId,
         state: 'resolved',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression, secondExpression]
       };
@@ -346,6 +382,7 @@ describe('Integration resolve exercises tests', () => {
         courseId,
         exerciseId: derivativeExerciseId,
         state: 'incompleted',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression]
       };
@@ -408,6 +445,7 @@ describe('Integration resolve exercises tests', () => {
         exerciseId: derivativeExerciseId,
         name: newName,
         state: 'incompleted',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression]
       };
@@ -471,6 +509,7 @@ describe('Integration resolve exercises tests', () => {
         name: newName,
         problemInput: newProblemInput,
         state: 'incompleted',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: []
       };
@@ -545,6 +584,7 @@ describe('Integration resolve exercises tests', () => {
         type: derivativeExercise.type,
         problemInput: newProblemInput,
         stepList: [],
+        mathTree,
         currentExpression: firstExpression,
         response: { exerciseStatus: 'resolved' }
       });
@@ -594,6 +634,7 @@ describe('Integration resolve exercises tests', () => {
         name: newName,
         problemInput: newProblemInput,
         state: 'delivered',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression]
       };
@@ -631,6 +672,7 @@ describe('Integration resolve exercises tests', () => {
         name: newName,
         problemInput: newProblemInput,
         state: 'delivered',
+        pipelineStatus: 'generated',
         calification: null
       }];
     });
@@ -667,6 +709,7 @@ describe('Integration resolve exercises tests', () => {
         name: newName,
         problemInput: newProblemInput,
         state: 'delivered',
+        pipelineStatus: 'generated',
         calification: null,
         stepList: [firstExpression]
       };

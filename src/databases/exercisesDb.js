@@ -4,6 +4,36 @@ const { processDbResponse, snakelize } = require('../utils/dbUtils');
 const configs = require('../config')();
 const knex = require('knex')(configs.db); // eslint-disable-line
 
+const commonColumns = [
+  'exercise_id',
+  'guide_id',
+  'course_id',
+  'created_at',
+  'problem_input',
+  'name',
+  'description',
+  'initial_hint',
+  'type',
+  'difficulty',
+  'pipeline_status',
+];
+
+/**
+ * Get exercise.
+ *
+ */
+const getExercise = async ({ courseId, guideId, exerciseId }) => (
+  knex('exercises')
+    .select()
+    .where(snakelize({
+      guideId,
+      courseId,
+      exerciseId,
+    }))
+    .then(processDbResponse)
+    .then((response) => response[0])
+);
+
 /**
  * Create exercise.
  *
@@ -15,7 +45,7 @@ const createExercise = async ({ courseId, guideId, exerciseMetadata }) => (
       guideId,
       courseId
     }))
-    .returning('*')
+    .returning(commonColumns)
     .then(processDbResponse)
     .then((response) => response[0])
 );
@@ -30,7 +60,7 @@ const listExercises = async ({ courseId, guideId }) => {
   }
 
   return knex('exercises')
-    .select('*')
+    .select(commonColumns)
     .where(snakelize({
       courseId,
       guideId
@@ -107,8 +137,10 @@ const removeExercise = async ({ courseId, guideId, exerciseId }) => {
 
 module.exports = {
   createExercise,
+  getExercise,
   listExercisesByIds,
   listExercises,
   removeExercise,
-  updateExercise
+  updateExercise,
+  commonColumns
 };

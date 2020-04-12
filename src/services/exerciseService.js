@@ -1,7 +1,7 @@
-const createError = require('http-errors');
 const mathResolverClient = require('../clients/mathResolverClient');
 const exercisesDB = require('../databases/exercisesDb');
 const usersService = require('../services/usersService');
+const logger = require('../utils/logger.js');
 
 /**
  * Create exercise.
@@ -10,18 +10,11 @@ const usersService = require('../services/usersService');
 const create = async ({
   context, guideId, courseId, exerciseMetadata
 }) => {
-  try {
-    await mathResolverClient.validate({
-      context,
-      problemInput: exerciseMetadata.problemInput,
-      type: exerciseMetadata.type
-    });
-  } catch (e) {
-    if (e.status === 400) {
-      throw createError(400, { message: 'invalid exercise' });
-    }
-    throw e;
-  }
+  await mathResolverClient.evaluate({
+    context,
+    problemInput: exerciseMetadata.problemInput,
+    type: exerciseMetadata.type
+  });
 
   // adding exercise template
   const createdExercise = await exercisesDB.createExercise({
@@ -43,12 +36,45 @@ const create = async ({
   });
 
   // return user exercise
-  return usersService.getExercise({
+  const exerciseToBeRetrieved = await usersService.getExercise({
     context,
     guideId,
     courseId,
     exerciseId: createdExercise.exerciseId,
     userId: context.user.userId
+  });
+
+  // generate math tree (Note that this action will be async)
+  generateMathTree({
+    context,
+    guideId,
+    courseId,
+    exerciseId: createdExercise.exerciseId,
+    problemInput: exerciseMetadata.problemInput,
+    type: exerciseMetadata.type
+  });
+
+  return exerciseToBeRetrieved;
+};
+
+const generateMathTree = async ({
+  context, guideId, courseId, exerciseId, problemInput, type
+}) => {
+  let metadataToUpdate;
+  try {
+    const mathTree = await mathResolverClient.generateMathTree({ context, problemInput, type });
+    metadataToUpdate = { mathTree: JSON.stringify(mathTree), pipelineStatus: 'generated' };
+  } catch (err) {
+    logger.onLog(`Error while generating math tree: ${courseId}, ${guideId}, ${exerciseId}`);
+
+    metadataToUpdate = { pipelineStatus: 'failed' };
+  }
+
+  return exercisesDB.updateExercise({
+    courseId,
+    guideId,
+    exerciseId,
+    exerciseMetadata: metadataToUpdate
   });
 };
 
