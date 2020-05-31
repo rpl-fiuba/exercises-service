@@ -1,7 +1,4 @@
-const { NODE_ENV } = process.env;
 const url = require('url');
-const fs = require('fs');
-const path = require('path');
 const fetch = require('node-fetch');
 const createError = require('http-errors');
 const requestUtils = require('../utils/requestUtils');
@@ -15,7 +12,13 @@ const evaluate = async ({ context, problemInput, type }) => {
 
   const response = await fetch(fullPath, {
     method: 'post',
-    body: JSON.stringify({ problem_input: problemInput, type }),
+    body: JSON.stringify({
+      problem_input: {
+        expression: problemInput,
+        variables: []
+      },
+      type
+    }),
     headers: {
       authorization: context.accessToken,
       'Content-Type': 'application/json'
@@ -35,11 +38,16 @@ const evaluate = async ({ context, problemInput, type }) => {
 const generateMathTree = async ({ context, problemInput, type }) => {
   const mathTreePath = configs.services.mathResolverService.paths.mathTree;
   const fullPath = `${mathResolverServiceUrl}${mathTreePath}`;
-  const theorems = getTheorems({ type });
 
   const response = await fetch(fullPath, {
     method: 'post',
-    body: JSON.stringify({ problem_input: problemInput, type, theorems }),
+    body: JSON.stringify({
+      problem_input: {
+        expression: problemInput,
+        variables: []
+      },
+      type
+    }),
     headers: {
       authorization: context.accessToken,
       'Content-Type': 'application/json'
@@ -54,16 +62,17 @@ const resolve = async ({
 }) => {
   const resolvePath = configs.services.mathResolverService.paths.resolve;
   const fullPath = `${mathResolverServiceUrl}${resolvePath}`;
-  const theorems = getTheorems({ type });
 
   const response = await fetch(fullPath, {
     method: 'post',
     body: JSON.stringify({
+      problem_input: {
+        expression: problemInput,
+        variables: []
+      },
       type,
-      problem_input: problemInput,
-      step_list: JSON.stringify(stepList),
+      step_list: stepList,
       math_tree: mathTree,
-      theorems,
       current_expression: currentExpression
     }),
     headers: {
@@ -72,26 +81,10 @@ const resolve = async ({
     }
   });
 
-  if (response.status <= 300) {
-    return requestUtils.processResponse(response);
-  }
-
-  console.log('Error while trying to resolve exercise');
-
-  if (NODE_ENV === 'dev') { // TODO: remove it
-    const possibleResponses = ['valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'valid', 'invalid', 'resolved'];
-    return Promise.resolve({
-      exerciseStatus: possibleResponses[Math.floor(Math.random() * possibleResponses.length)]
-    });
-  }
-  throw createError(response.status, await response.json());
+  return requestUtils.processResponse(response);
 };
 
 const askHelp = async ({ context, type, problemInput, stepList }) => {
-  if (NODE_ENV === 'dev') { // TODO: remove it
-    return Promise.resolve({ help: 'Intente usar derivada de la suma' });
-  }
-
   const helpPath = configs.services.mathResolverService.paths.help;
   const fullPath = `${mathResolverServiceUrl}${helpPath}`;
 
@@ -109,17 +102,6 @@ const askHelp = async ({ context, type, problemInput, stepList }) => {
   });
 
   return requestUtils.processResponse(response);
-};
-
-const getTheorems = ({ type }) => {
-  let theorems = [];
-  if (type === 'derivative') {
-    theorems = fs.readFileSync(path.resolve(__dirname, './derivative-theorems.json'));
-  } else if (type === 'integral') {
-    theorems = fs.readFileSync(path.resolve(__dirname, './integral-theorems.json'));
-  }
-
-  return JSON.parse(theorems);
 };
 
 module.exports = {
