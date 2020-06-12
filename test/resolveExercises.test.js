@@ -181,6 +181,19 @@ describe('Integration resolve exercises tests', () => {
     });
   });
 
+  describe('Getting steps count statistics (should be empty since no exercise has been delivered)', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: studentProfile });
+      mocks.mockGetCourse({ courseId, course });
+
+      response = await requests.getExerciseStepsCountStatistics({ courseId, token });
+    });
+
+    it('the statistics has been updated', () => {
+      assert.deepEqual(response.body, []);
+    });
+  });
+
   describe('Resolving the exercise (status invalid again)', () => {
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
@@ -483,7 +496,7 @@ describe('Integration resolve exercises tests', () => {
 
     before(async () => {
       updatedExercise = {
-        problemInput: newProblemInput
+        problemInput: newProblemInput // TODO: fix this bug, because the input should not change
       };
     });
 
@@ -742,6 +755,27 @@ describe('Integration resolve exercises tests', () => {
     });
   });
 
+  describe('Getting steps count statistics (should be fulled since the exercise has been delivered)', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+
+      response = await requests.getExerciseStepsCountStatistics({ courseId, token });
+    });
+
+    it('the statistics has been updated', () => {
+      assert.deepEqual(response.body, [{
+        exercises: [{
+          count: 1,
+          exerciseId: derivativeExerciseId,
+          name: newName,
+          users: [studentProfile.userId]
+        }],
+        guideId
+      }]);
+    });
+  });
+
   describe('Trying to delete a step after deliver (should fail)', () => {
     before(async () => {
       mocks.mockAuth({ profile: studentProfile });
@@ -773,5 +807,100 @@ describe('Integration resolve exercises tests', () => {
     });
 
     it('status is 409', () => assert.equal(response.status, 409));
+  });
+
+  describe('Resolving the exercise by the profesor (status resolved)', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+      mocks.mockResolveExercise({
+        type: derivativeExercise.type,
+        problemInput: newProblemInput,
+        stepList: [],
+        mathTree,
+        currentExpression: firstExpression,
+        response: { exerciseStatus: 'resolved' }
+      });
+
+      response = await requests.resolveExercise({
+        exerciseId: derivativeExerciseId,
+        courseId,
+        guideId,
+        token,
+        currentExpression: firstExpression
+      });
+    });
+
+    it('status is OK', () => assert.equal(response.status, 200));
+
+    it('should retrieve the current status', () => {
+      assert.deepEqual(response.body, { exerciseStatus: 'resolved' });
+    });
+  });
+
+  describe('Resolving the exercise by the profesor (status resolved) Adding another step', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+      mocks.mockResolveExercise({
+        type: derivativeExercise.type,
+        problemInput: newProblemInput,
+        stepList: [firstExpression],
+        mathTree,
+        currentExpression: secondExpression,
+        response: { exerciseStatus: 'resolved' }
+      });
+
+      response = await requests.resolveExercise({
+        exerciseId: derivativeExerciseId,
+        courseId,
+        guideId,
+        token,
+        currentExpression: secondExpression
+      });
+    });
+
+    it('status is OK', () => assert.equal(response.status, 200));
+
+    it('should retrieve the current status', () => {
+      assert.deepEqual(response.body, { exerciseStatus: 'resolved' });
+    });
+  });
+
+  describe('Delivering the exercise', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+
+      response = await requests.deliverExercise({
+        exerciseId: derivativeExerciseId,
+        courseId,
+        guideId,
+        token
+      });
+    });
+
+    it('status is OK', () => assert.equal(response.status, 200));
+  });
+
+  describe('Getting steps count statistics (should be empty since no exercise has been delivered)', () => {
+    before(async () => {
+      mocks.mockAuth({ profile: professorProfile });
+      mocks.mockGetCourse({ courseId, course });
+
+      response = await requests.getExerciseStepsCountStatistics({ courseId, token });
+    });
+
+    it('the statistics has been updated', () => {
+      assert.deepEqual(response.body, [{
+        exercises: [{
+          count: 3,
+          exerciseId: derivativeExerciseId,
+          name: newName,
+          users: [professorProfile.userId, studentProfile.userId]
+        }],
+        guideId
+      }]);
+    });
   });
 });
