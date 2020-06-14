@@ -47,6 +47,23 @@ const create = async (req, res) => {
 };
 
 /**
+ * Get exercise status.
+ *
+ */
+const getExerciseStatus = async (req, res) => {
+  const { courseId, guideId, exerciseId } = req.params;
+
+  const exerciseStatus = await exerciseService.getExerciseStatus({
+    context: req.context,
+    guideId,
+    courseId,
+    exerciseId
+  });
+
+  return res.status(200).json(exerciseStatus);
+};
+
+/**
  * List exercises.
  *
  */
@@ -117,6 +134,7 @@ const remove = async (req, res) => {
 
 module.exports = expressify({
   create,
+  getExerciseStatus,
   list,
   remove,
   update
