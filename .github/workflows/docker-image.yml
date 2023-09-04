@@ -33,3 +33,5 @@ jobs:
 
       - name: "Create deployment"
         uses: okteto/apply@latest
+        with:
+          manifest: docker-compose.yml
