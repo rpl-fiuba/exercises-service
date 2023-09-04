@@ -1,4 +1,4 @@
-name: Publish Docker Image
+name: Publish Docker Image + Deploy to Okteto
 on:
   push:
     branches: [ master ]
@@ -15,3 +15,21 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           tags: ${{ github.sha }}
+  push-okteto-pipeline:
+    needs: publish-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+
+      - uses: okteto/login@latest
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
+
+      - name: "Activate personal namespace"
+        uses: okteto/namespace@latest
+        with:
+          namespace: fiuba-lorenzolgz
+
+      - name: "Create deployment"
+        uses: okteto/apply@latest
