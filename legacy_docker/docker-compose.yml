@@ -7,13 +7,13 @@ services:
     depends_on:
       - exercises-db
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ..
+      dockerfile: ../Dockerfile
 
   exercises-db:
     build:
-      context: .
-      dockerfile: ./Dockerfile-db
+      context: ..
+      dockerfile: ../Dockerfile-db
     container_name: "exercises-db"
     volumes:
       - exercises-dbdata:/var/lib/postgresql/data

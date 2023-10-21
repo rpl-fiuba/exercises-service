@@ -1,6 +1,9 @@
 name: Publish Database Docker Image + Deploy to Okteto
 on:
   push:
+    paths:
+      - '*exercises-database.yml'
+      - '*Dockerfile-db'
     branches: [ master ]
 
 jobs:
