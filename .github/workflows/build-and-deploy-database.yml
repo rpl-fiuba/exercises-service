@@ -4,35 +4,35 @@ on:
     branches: [ master ]
 
 jobs:
-  publish-docker-image-backend:
+  publish-docker-image-database:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: lorenzogl/exercises-service
+          name: lorenzogl/exercises-db
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           tags: ${{ github.sha }}
-          dockerfile: Dockerfile
+          dockerfile: Dockerfile-db
 
-  push-okteto-pipeline:
-    needs: publish-docker-image-backend
+  push-db-okteto-pipeline:
+    needs: publish-docker-image-database
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@master
 
-      - name: Create and populate kubernetes/exercises-service.yml file
+      - name: Create and populate kubernetes/exercises-database.yml file
         env:
           MONGO_FULL_URL_SECRET: ${{ secrets.MONGO_URL }}
           GIT_SHA_SECRET: ${{ github.sha }}
         run: |
-          touch kubernetes/exercises-service.yml
-          sed "s|MONGO_URL_PLACEHOLDER|$MONGO_FULL_URL_SECRET|" kubernetes-templates/exercises-service.yml | sed "s|GIT_SHA_SECRET|$GIT_SHA_SECRET|" > kubernetes/exercises-service.yml
-          echo "cat kubernetes/exercises-service.yml"
-          cat kubernetes/exercises-service.yml
+          touch kubernetes/exercises-database.yml
+          sed "s|MONGO_URL_PLACEHOLDER|$MONGO_FULL_URL_SECRET|" kubernetes-templates/exercises-database.yml | sed "s|GIT_SHA_SECRET|$GIT_SHA_SECRET|" > kubernetes/exercises-database.yml
+          echo "cat kubernetes/exercises-database.yml"
+          cat kubernetes/exercises-database.yml
 
           echo "ls -a ."
           ls -a .
@@ -54,4 +54,4 @@ jobs:
       - name: "Create deployment"
         uses: okteto/apply@latest
         with:
-          manifest: kubernetes/exercises-service.yml
+          manifest: kubernetes/exercises-database.yml
