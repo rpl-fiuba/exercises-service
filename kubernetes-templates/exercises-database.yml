@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exercises-db
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: exercises-db
+  template:
+    metadata:
+      labels:
+        app: exercises-db
+    spec:
+      containers:
+        - image: lorenzogl/exercises-database:GIT_SHA_SECRET
+          imagePullPolicy: Always
+          name: exercises-db
+          env:
+            - name: ENV_VAR_1
+              value: ENV_VAR_1_VALUE
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exercises-db
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+spec:
+  type: ClusterIP
+  ports:
+    - name: "exercises-db"
+      port: 9000
+      targetPort: 9000
+  selector:
+    app: exercises-db
+
+
+
+  version: '3'
+  services:
+    exercises-service:
+      container_name: "exercises-service"
+      ports:
+        - "127.0.0.1:9000:9000"
+      depends_on:
+        - exercises-db
+      build:
+        context: .
+        dockerfile: ./Dockerfile
+
+    exercises-db:
+      build:
+        context: .
+        dockerfile: ./Dockerfile-db
+      container_name: "exercises-db"
+      volumes:
+        - exercises-dbdata:/var/lib/postgresql/data
+
+  volumes:
+    exercises-dbdata:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

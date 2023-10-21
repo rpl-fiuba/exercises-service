@@ -1,0 +1,110 @@
+name: Publish Docker Image + Deploy to Okteto
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  publish-docker-image-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: lorenzogl/exercises-service
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: ${{ github.sha }}
+          dockerfile: Dockerfile
+  publish-docker-image-database:
+    needs: publish-docker-image-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: lorenzogl/exercises-db
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: ${{ github.sha }}
+          dockerfile: Dockerfile-db
+
+  push-okteto-pipeline:
+    needs: publish-docker-image-database
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+
+      - name: Create and populate kubernetes/exercises-service.yml file
+        env:
+          MONGO_FULL_URL_SECRET: ${{ secrets.MONGO_URL }}
+          GIT_SHA_SECRET: ${{ github.sha }}
+        run: |
+          touch kubernetes/exercises-service.yml
+          sed "s|MONGO_URL_PLACEHOLDER|$MONGO_FULL_URL_SECRET|" kubernetes-templates/exercises-service.yml | sed "s|GIT_SHA_SECRET|$GIT_SHA_SECRET|" > kubernetes/exercises-service.yml
+          echo "cat kubernetes/exercises-service.yml"
+          cat kubernetes/exercises-service.yml
+
+          echo "ls -a ."
+          ls -a .
+
+          echo "ls -a ${{ github.workspace }}"
+          ls -a ${{ github.workspace }}
+        shell: bash
+
+
+      - uses: okteto/login@latest
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
+
+      - name: "Activate personal namespace"
+        uses: okteto/namespace@latest
+        with:
+          namespace: fiuba-lorenzolgz
+
+      - name: "Create deployment"
+        uses: okteto/apply@latest
+        with:
+          manifest: kubernetes/exercises-service.yml
+
+
+  push-db-okteto-pipeline:
+    needs: publish-docker-image-database
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+
+      - name: Create and populate kubernetes/exercises-database.yml file
+        env:
+          MONGO_FULL_URL_SECRET: ${{ secrets.MONGO_URL }}
+          GIT_SHA_SECRET: ${{ github.sha }}
+        run: |
+          touch kubernetes/exercises-database.yml
+          sed "s|MONGO_URL_PLACEHOLDER|$MONGO_FULL_URL_SECRET|" kubernetes-templates/exercises-database.yml | sed "s|GIT_SHA_SECRET|$GIT_SHA_SECRET|" > kubernetes/exercises-database.yml
+          echo "cat kubernetes/exercises-database.yml"
+          cat kubernetes/exercises-database.yml
+
+          echo "ls -a ."
+          ls -a .
+
+          echo "ls -a ${{ github.workspace }}"
+          ls -a ${{ github.workspace }}
+        shell: bash
+
+
+      - uses: okteto/login@latest
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
+
+      - name: "Activate personal namespace"
+        uses: okteto/namespace@latest
+        with:
+          namespace: fiuba-lorenzolgz
+
+      - name: "Create deployment"
+        uses: okteto/apply@latest
+        with:
+          manifest: kubernetes/exercises-database.yml
