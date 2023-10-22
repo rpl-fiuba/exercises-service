@@ -22,4 +22,6 @@ COPY /configs ./configs
 
 EXPOSE 9000
 
+ENV DOCKER true
+
 CMD [ "npm", "run", "prod" ]
