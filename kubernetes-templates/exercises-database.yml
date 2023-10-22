@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: exercises-db
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: exercises-db
