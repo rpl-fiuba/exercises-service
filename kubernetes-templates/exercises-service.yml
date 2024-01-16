@@ -16,6 +16,24 @@ spec:
         - image: lorenzogl/exercises-service:GIT_SHA_SECRET
           imagePullPolicy: Always
           name: exercises-service
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 7000
+            initialDelaySeconds: 100
+            failureThreshold: 5
+            successThreshold: 1
+            timeoutSeconds: 60
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 7000
+            initialDelaySeconds: 300
+            failureThreshold: 5
+            successThreshold: 1
+            timeoutSeconds: 60
+            periodSeconds: 60
           env:
             - name: ENV_VAR_1
               value: ENV_VAR_1_VALUE
