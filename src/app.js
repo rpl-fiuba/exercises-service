@@ -32,6 +32,7 @@ app.use(requestLoggerMiddleware);
 
 // Routes
 router.get('/ping', (req, res) => statusController.ping(req, res));
+router.get('/', (req, res) => statusController.ping(req, res));
 
 router.use(initialMiddleware);
 router.use(authMiddleware);
