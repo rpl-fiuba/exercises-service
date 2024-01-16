@@ -19,7 +19,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /ping
-              port: 7000
+              port: 9000
             initialDelaySeconds: 100
             failureThreshold: 5
             successThreshold: 1
@@ -28,7 +28,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /ping
-              port: 7000
+              port: 9000
             initialDelaySeconds: 300
             failureThreshold: 5
             successThreshold: 1
