@@ -1,10 +1,16 @@
-name: Publish Database Docker Image + Deploy to Okteto
+name: (DB) Publish Database Docker Image + Deploy to GKE
 on:
   push:
     paths:
       - '**.yml'
       - '**Dockerfile-db'
     branches: [ master ]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: autopilot-cluster-1    # cluster name
+  GKE_ZONE: us-central1               # cluster zone
+
 
 jobs:
   publish-docker-image-database:
@@ -20,7 +26,7 @@ jobs:
           tags: ${{ github.sha }}
           dockerfile: Dockerfile-db
 
-  push-db-okteto-pipeline:
+  push-db-gke-pipeline:
     needs: publish-docker-image-database
     runs-on: ubuntu-latest
     steps:
@@ -36,25 +42,19 @@ jobs:
           sed "s|MONGO_URL_PLACEHOLDER|$MONGO_FULL_URL_SECRET|" kubernetes-templates/exercises-database.yml | sed "s|GIT_SHA_SECRET|$GIT_SHA_SECRET|" > kubernetes/exercises-database.yml
           echo "cat kubernetes/exercises-database.yml"
           cat kubernetes/exercises-database.yml
-
-          echo "ls -a ."
-          ls -a .
-
-          echo "ls -a ${{ github.workspace }}"
-          ls -a ${{ github.workspace }}
         shell: bash
 
-
-      - uses: okteto/login@latest
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
         with:
-          token: ${{ secrets.OKTETO_TOKEN }}
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      - name: "Activate personal namespace"
-        uses: okteto/namespace@latest
+      - name: Set up GKE credentials
+        uses: google-github-actions/get-gke-credentials@v0
         with:
-          namespace: fiuba-lorenzolgz
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
 
-      - name: "Create deployment"
-        uses: okteto/apply@latest
-        with:
-          manifest: kubernetes/exercises-database.yml
+      - name: Deploy
+        run:
+          kubectl apply -f ./kubernetes/exercises-database.yml
