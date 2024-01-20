@@ -5,7 +5,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: autopilot-cluster-1    # cluster name
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}    # cluster name
   GKE_ZONE: us-central1               # cluster zone
 
 jobs:
