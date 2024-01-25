@@ -32,7 +32,7 @@ spec:
   ports:
     - name: "exercises-db"
       port: 80
-      targetPort: 9000
+      targetPort: 5432
   selector:
     app: exercises-db
 
