@@ -8,7 +8,7 @@ module.exports = {
     mathResolverService: {
       url: {
         protocol: 'https',
-        hostname: process.env.MATH_SOLVER_URL || 'math-solver-fiuba-lorenzolgz.cloud.okteto.net',
+        hostname: process.env.MATH_SOLVER_URL || 'learning.net.ar/math-solver',
       },
       paths: {
         evaluate: '/validations/evaluate',
@@ -20,7 +20,7 @@ module.exports = {
     usersService: {
       url: {
         protocol: 'https',
-        hostname: process.env.USERS_SERVICE_URL || 'users-service-fiuba-lorenzolgz.cloud.okteto.net/',
+        hostname: process.env.USERS_SERVICE_URL || 'learning.net.ar/users-service',
       },
       paths: {
         auth: 'login'
@@ -29,7 +29,7 @@ module.exports = {
     coursesService: {
       url: {
         protocol: 'https',
-        hostname: process.env.COURSES_SERVICE_URL || 'courses-service-fiuba-lorenzolgz.cloud.okteto.net',
+        hostname: process.env.COURSES_SERVICE_URL || 'learning.net.ar/courses-service',
       },
       paths: {
         course: ({ courseId }) => `/courses/${courseId}`,

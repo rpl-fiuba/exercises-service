@@ -35,8 +35,12 @@ spec:
             timeoutSeconds: 60
             periodSeconds: 60
           env:
-            - name: ENV_VAR_1
-              value: ENV_VAR_1_VALUE
+            - name: USERS_SERVICE_URL
+              value: learning.net.ar/users-service
+            - name: COURSES_SERVICE_URL
+              value: learning.net.ar/courses-service
+            - name: MATH_SOLVER_URL
+              value: learning.net.ar/math-solver
 
 ---
 apiVersion: v1
