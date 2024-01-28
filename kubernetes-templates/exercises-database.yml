@@ -37,13 +37,6 @@ spec:
       labels:
         app: exercises-db
     spec:
-      initContainers:
-        - name: init-exercises-db
-          image: busybox
-          command: ['sh', '-c', 'mkdir -p /var/lib/postgresql/exercises-db-data && chown -R 999:999 /var/lib/postgresql/exercises-db-data']
-          volumeMounts:
-            - name: exercises-db-storage
-              mountPath: "/var/lib/postgresql/exercises-db-data"
       containers:
         - name: exercises-db
           image: lorenzogl/exercises-db:GIT_SHA_SECRET
@@ -51,10 +44,11 @@ spec:
           env:
             - name: ENV_VAR_1
               value: ENV_VAR_1_VALUE
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
-            - name: exercises-db-storage
-              mountPath: "/var/lib/postgresql/data"
-
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
       volumes:
         - name: exercises-db-storage
           persistentVolumeClaim:
