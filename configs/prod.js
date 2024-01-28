@@ -30,7 +30,7 @@ module.exports = {
     },
     coursesService: {
       url: {
-        protocol: 'https',
+        protocol: 'http',
         hostname: process.env.COURSES_SERVICE_URL || 'learning.net.ar/courses-service',
         port: 80,
       },
