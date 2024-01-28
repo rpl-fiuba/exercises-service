@@ -7,7 +7,7 @@ module.exports = {
   services: {
     mathResolverService: {
       url: {
-        protocol: 'https',
+        protocol: 'http',
         hostname: process.env.MATH_SOLVER_URL || 'learning.net.ar/math-solver',
         port: 80
       },
@@ -20,7 +20,7 @@ module.exports = {
     },
     usersService: {
       url: {
-        protocol: 'https',
+        protocol: 'http',
         hostname: process.env.USERS_SERVICE_URL || 'learning.net.ar/users-service',
         port: 80,
       },
