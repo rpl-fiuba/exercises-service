@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/var/lib/postgresql/exercises-db-data"  # Adjust the path for each PostgreSQL instance
+    path: "/var/lib/postgresql"  # Adjust the path for each PostgreSQL instance
 
 ---
 apiVersion: v1
@@ -46,12 +46,13 @@ spec:
               value: ENV_VAR_1_VALUE
           volumeMounts:
             - name: exercises-db-storage
-              mountPath: "/var/lib/postgresql/data"
+              mountPath: "/var/lib/postgresql/data/exercises-db"
 
       volumes:
         - name: exercises-db-storage
           persistentVolumeClaim:
             claimName: exercises-db-pvc
+          subPath: exercises-db  # Specify the subdirectory to mount
 
 ---
 apiVersion: v1
