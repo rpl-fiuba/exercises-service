@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/var/lib/postgresql"  # Adjust the path for each PostgreSQL instance
+    path: "/var/lib/postgresql/exercises-db-data"  # Adjust the path for each PostgreSQL instance
 
 ---
 apiVersion: v1
@@ -37,22 +37,28 @@ spec:
       labels:
         app: exercises-db
     spec:
+      initContainers:
+        - name: init-exercises-db
+          image: busybox
+          command: ['sh', '-c', 'mkdir -p /var/lib/postgresql/exercises-db-data && chown -R 999:999 /var/lib/postgresql/exercises-db-data']
+          volumeMounts:
+            - name: exercises-db-storage
+              mountPath: "/var/lib/postgresql/exercises-db-data"
       containers:
-        - image: lorenzogl/exercises-db:GIT_SHA_SECRET
+        - name: exercises-db
+          image: lorenzogl/exercises-db:GIT_SHA_SECRET
           imagePullPolicy: Always
-          name: exercises-db
           env:
             - name: ENV_VAR_1
               value: ENV_VAR_1_VALUE
           volumeMounts:
             - name: exercises-db-storage
-              mountPath: "/var/lib/postgresql/data/exercises-db"
+              mountPath: "/var/lib/postgresql/data"
 
       volumes:
         - name: exercises-db-storage
           persistentVolumeClaim:
             claimName: exercises-db-pvc
-          subPath: exercises-db  # Specify the subdirectory to mount
 
 ---
 apiVersion: v1
