@@ -9,6 +9,7 @@ module.exports = {
       url: {
         protocol: 'https',
         hostname: process.env.MATH_SOLVER_URL || 'learning.net.ar/math-solver',
+        port: 80
       },
       paths: {
         evaluate: '/validations/evaluate',
@@ -21,6 +22,7 @@ module.exports = {
       url: {
         protocol: 'https',
         hostname: process.env.USERS_SERVICE_URL || 'learning.net.ar/users-service',
+        port: 80,
       },
       paths: {
         auth: 'login'
@@ -30,6 +32,7 @@ module.exports = {
       url: {
         protocol: 'https',
         hostname: process.env.COURSES_SERVICE_URL || 'learning.net.ar/courses-service',
+        port: 80,
       },
       paths: {
         course: ({ courseId }) => `/courses/${courseId}`,

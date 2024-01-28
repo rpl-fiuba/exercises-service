@@ -36,11 +36,13 @@ spec:
             periodSeconds: 60
           env:
             - name: USERS_SERVICE_URL
-              value: learning.net.ar/users-service
+              value: users-service
             - name: COURSES_SERVICE_URL
-              value: learning.net.ar/courses-service
+              value: courses-service
             - name: MATH_SOLVER_URL
-              value: learning.net.ar/math-solver
+              value: math-solver
+            - name: NODE_ENV
+              value: prod
 
 ---
 apiVersion: v1
