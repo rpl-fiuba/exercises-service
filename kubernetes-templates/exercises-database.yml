@@ -46,6 +46,8 @@ spec:
               value: ENV_VAR_1_VALUE
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
+            - name: TEST_ENV_VAR
+              value: trigger-redeploy
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: exercises-db-storage
