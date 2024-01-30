@@ -35,6 +35,14 @@ spec:
             timeoutSeconds: 60
             periodSeconds: 60
           env:
+            - name: DB_HOST
+              value: exercises-db
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DATABASE
+              value: exercises_service
             - name: USERS_SERVICE_URL
               value: users-service
             - name: COURSES_SERVICE_URL
