@@ -62,19 +62,20 @@ const resolve = async ({
 }) => {
   const resolvePath = configs.services.mathResolverService.paths.resolve;
   const fullPath = `${mathResolverServiceUrl}${resolvePath}`;
-
+  const body = JSON.stringify({
+    problem_input: {
+      expression: problemInput,
+      variables: []
+    },
+    type,
+    step_list: stepList,
+    math_tree: mathTree,
+    current_expression: currentExpression
+  });
+  console.log('Body on resolvePath request ', body);
   const response = await fetch(fullPath, {
     method: 'post',
-    body: JSON.stringify({
-      problem_input: {
-        expression: problemInput,
-        variables: []
-      },
-      type,
-      step_list: stepList,
-      math_tree: mathTree,
-      current_expression: currentExpression
-    }),
+    body,
     headers: {
       authorization: context.accessToken,
       'Content-Type': 'application/json'
