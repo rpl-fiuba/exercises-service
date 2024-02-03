@@ -17,7 +17,7 @@ const create = async ({
     type: exerciseMetadata.type
   });
 
-  // adding "d()/dx" or "\int dx" to the problem input
+  // adding "d()/dx" or "\int dx" to the problem input if applicable
   let { problemInput } = exerciseMetadata;
   if (exerciseMetadata.type === 'derivative') {
     problemInput = `\\frac{d(${exerciseMetadata.problemInput})}{dx}`;
