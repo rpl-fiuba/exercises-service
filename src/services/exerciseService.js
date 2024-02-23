@@ -23,6 +23,8 @@ const create = async ({
     problemInput = `\\frac{d(${exerciseMetadata.problemInput})}{dx}`;
   } else if (exerciseMetadata.type === 'integral') {
     problemInput = `\\int ${exerciseMetadata.problemInput} dx`;
+  } else if (exerciseMetadata.type === 'domain_and_image') {
+    problemInput = `Dom(${exerciseMetadata.problemInput})`;
   }
 
   // adding exercise template
