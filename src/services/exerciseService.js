@@ -23,7 +23,7 @@ const create = async ({
     problemInput = `\\frac{d(${exerciseMetadata.problemInput})}{dx}`;
   } else if (exerciseMetadata.type === 'integral') {
     problemInput = `\\int ${exerciseMetadata.problemInput} dx`;
-  } else if (exerciseMetadata.type === 'domain_and_image') {
+  } else if (exerciseMetadata.type === 'domain') {
     problemInput = `Dom(${exerciseMetadata.problemInput})`;
   }
 
