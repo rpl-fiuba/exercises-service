@@ -25,6 +25,8 @@ const create = async ({
     problemInput = `\\int ${exerciseMetadata.problemInput} dx`;
   } else if (exerciseMetadata.type === 'domain') {
     problemInput = `Dom(${exerciseMetadata.problemInput})`;
+  } else if (exerciseMetadata.type === 'image') {
+    problemInput = `Img(${exerciseMetadata.problemInput})`;
   }
 
   // adding exercise template
