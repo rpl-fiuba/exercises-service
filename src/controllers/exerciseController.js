@@ -3,7 +3,7 @@ const createError = require('http-errors');
 const expressify = require('expressify')();
 const exerciseService = require('../services/exerciseService');
 
-const allowedExerciseTypes = ['derivative', 'integral', 'factorisable', 'domain', 'inequality', 'image'];
+const allowedExerciseTypes = ['derivative', 'integral', 'factorisable', 'domain', 'inequality', 'image', 'trigonometry'];
 
 const extractMetadata = (body) => (
   _.pick(body, ['problemInput', 'name', 'description', 'type', 'difficulty', 'initialHint'])

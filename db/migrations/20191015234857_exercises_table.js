@@ -2,7 +2,7 @@ exports.up = (knex) => {
   const query = `
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-    create TYPE type as enum('derivative', 'integral', 'factorisable', 'domain', 'inequality', 'domain');
+    create TYPE type as enum('derivative', 'integral', 'factorisable', 'domain', 'inequality', 'domain', 'trigonometry');
     create TYPE difficulty as enum('easy', 'medium', 'hard');
     create TYPE exercise_state as enum('delivered', 'resolved', 'incompleted');
     create TYPE pipeline_status as enum('waiting', 'generated', 'failed');
