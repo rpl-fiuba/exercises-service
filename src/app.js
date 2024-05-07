@@ -69,6 +69,9 @@ router.post('/courses/:courseId/guides/:guideId/exercises/evaluate', courseValid
 router.get('/courses/:courseId/errors/statistics', courseValidatorMiddleware, statisticsController.getErrorCountStatistics);
 router.get('/courses/:courseId/steps/statistics', courseValidatorMiddleware, statisticsController.getStepCountStatistics);
 router.get('/courses/:courseId/qualifications/statistics', courseValidatorMiddleware, statisticsController.getQualificationsStatistics);
+router.get('/courses/:courseId/guides/:guideId/statistics/initiated', courseValidatorMiddleware, statisticsController.getInitiatedExercisesStatistics);
+router.get('/courses/:courseId/guides/:guideId/statistics/failed', courseValidatorMiddleware, statisticsController.getFailedExercisesStatistics);
+router.get('/courses/:courseId/guides/:guideId/statistics/resolved', courseValidatorMiddleware, statisticsController.getResolvedExercisesStatistics);
 
 app.use(router);
 

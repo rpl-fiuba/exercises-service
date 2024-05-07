@@ -63,6 +63,44 @@ const getExercisesErrorCount = async ({ courseId }) => (
     .then(processDbResponse)
 );
 
+
+const getResolvedStatistics = async ({ courseId, guideId }) => knex('student_exercises')
+  .select('ex.guide_id', 'ex.exercise_id', 'ex.name', 'student_exercises.user_id')
+  .innerJoin('exercises as ex', 'student_exercises.exercise_id', 'ex.exercise_id')
+  .where('ex.guide_id', guideId)
+  .where('student_exercises.course_id', courseId)
+  .where('student_exercises.state', 'delivered')
+  .then(processDbResponse);
+
+const getInProgressStatistics = async ({ courseId, guideId }) => knex('student_exercises')
+  .select('ex.guide_id', 'ex.exercise_id', 'ex.name', 'student_exercises.user_id')
+  .innerJoin('exercises as ex', 'student_exercises.exercise_id', 'ex.exercise_id')
+  .where('ex.guide_id', guideId)
+  .where('student_exercises.course_id', courseId)
+  .where('student_exercises.state', 'incompleted')
+  .where('student_exercises.step_list', '!=', '[]')
+  .then(processDbResponse);
+
+
+const getFailedStartStatistics = async ({ courseId, guideId }) => {
+  return knex('student_exercises')
+    .distinct('ex.guide_id', 'ex.exercise_id', 'ex.name', 'student_exercises.user_id', 'eec.error_count')
+    .innerJoin('exercises as ex', 'student_exercises.exercise_id', 'ex.exercise_id')
+    .innerJoin('exercise_errors_count as eec', function innerJoinFn() {
+      this.on('eec.exercise_id', 'ex.exercise_id');
+      this.on('eec.guide_id', 'ex.guide_id');
+      this.on('eec.course_id', 'ex.course_id');
+      this.on('eec.user_id', 'student_exercises.user_id');
+    })
+    .where('ex.guide_id', guideId)
+    .where('student_exercises.course_id', courseId)
+    .where('student_exercises.state', 'incompleted')
+    .where('student_exercises.step_list', '[]')
+    .where('eec.error_count', '>=', 1)
+    .then(processDbResponse);
+};
+
+
 /**
  * Insert total step count of exercise
  *
@@ -121,5 +159,8 @@ module.exports = {
   getExercisesErrorCount,
   getExercisesTotalStepCount,
   increaseErrorCount,
-  createTotalStepsCountEntry
+  createTotalStepsCountEntry,
+  getResolvedStatistics,
+  getInProgressStatistics,
+  getFailedStartStatistics
 };

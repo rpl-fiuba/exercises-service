@@ -15,6 +15,38 @@ const getErrorCountStatistics = async (req, res) => {
   return res.status(200).json(errorCountStatistics);
 };
 
+const getResolvedExercisesStatistics = async (req, res) => {
+  const { courseId, guideId } = req.params;
+
+  const deliveryStatistics = await statisticsService.getResolvedStatistics({
+    context: req.context, courseId, guideId
+  });
+
+  return res.status(200).json(deliveryStatistics);
+};
+
+const getInitiatedExercisesStatistics = async (req, res) => {
+  const { courseId, guideId } = req.params;
+
+  const deliveryStatistics = await statisticsService.getInitiatedStatistics({
+    context: req.context, courseId, guideId
+  });
+
+  return res.status(200).json(deliveryStatistics);
+};
+
+
+const getFailedExercisesStatistics = async (req, res) => {
+  const { courseId, guideId } = req.params;
+
+  const deliveryStatistics = await statisticsService.getFailedStartStatistics({
+    context: req.context, courseId, guideId
+  });
+
+  return res.status(200).json(deliveryStatistics);
+};
+
+
 /**
  * Get exercise step count statistics.
  *
@@ -46,5 +78,8 @@ const getQualificationsStatistics = async (req, res) => {
 module.exports = expressify({
   getQualificationsStatistics,
   getErrorCountStatistics,
-  getStepCountStatistics
+  getStepCountStatistics,
+  getResolvedExercisesStatistics,
+  getInitiatedExercisesStatistics,
+  getFailedExercisesStatistics
 });

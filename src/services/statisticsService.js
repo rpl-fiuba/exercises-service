@@ -60,6 +60,24 @@ const getErrorCountStatistics = async ({ context, courseId }) => {
 };
 
 
+const getResolvedStatistics = async ({ context, courseId, guideId }) => {
+  const resolveCount = await statisticsDb.getResolvedStatistics({ context, courseId, guideId });
+  return getStatisticsGroupedByExercise({ guideId, userExercisesEntries: resolveCount });
+};
+
+const getFailedStartStatistics = async ({ context, courseId, guideId }) => {
+  const failedCount = await statisticsDb.getFailedStartStatistics({ context, courseId, guideId });
+  return getStatisticsGroupedByExercise({ guideId, userExercisesEntries: failedCount });
+};
+
+
+const getInitiatedStatistics = async ({ context, courseId, guideId }) => {
+  const deliveryCount = await statisticsDb.getInProgressStatistics({ context, courseId, guideId });
+  return getStatisticsGroupedByExercise({ guideId, userExercisesEntries: deliveryCount });
+};
+
+
+
 /**
  * Get course step count statistics.
  *
@@ -69,6 +87,21 @@ const getStepCountStatistics = async ({ context, courseId }) => {
 
   return formatStatistics(exercisesStepCount);
 };
+
+const getStatisticsGroupedByExercise = ({ guideId, userExercisesEntries }) => {
+
+  const byExercise = groupByProperty(userExercisesEntries, 'exerciseId');
+  const exerciseStatistics = Object.keys(byExercise.objs).map((exerciseId) => {
+    const userExercises = byExercise.objs[exerciseId];
+    const { name } = userExercises[0];
+    const userCount = userExercises.length;
+    const users = userExercises.reduce((usersList, { userId }) => [...usersList, userId], []);
+    return { exerciseId, name, userCount, users };
+  });
+
+  return { guideId, exercises: exerciseStatistics };
+};
+
 
 const formatStatistics = (allStatisticsCount) => {
   const byGuide = groupByProperty(allStatisticsCount, 'guideId');
@@ -134,5 +167,8 @@ module.exports = {
   getQualificationsStatistics,
   getErrorCountStatistics,
   getStepCountStatistics,
-  updateTotalStepsCount
+  updateTotalStepsCount,
+  getResolvedStatistics,
+  getInitiatedStatistics,
+  getFailedStartStatistics
 };
