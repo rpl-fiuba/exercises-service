@@ -4,6 +4,20 @@ const exercisesDB = require('../databases/exercisesDb');
 const usersService = require('../services/usersService');
 const logger = require('../utils/logger.js');
 
+function formatProblemInput(problemInput, exerciseType) {
+  // adding "d()/dx" or "\int dx" to the problem input if applicable
+  if (exerciseType === 'derivative') {
+    return `\\frac{d(${problemInput})}{dx}`;
+  } if (exerciseType === 'integral') {
+    return `\\int ${problemInput} dx`;
+  } if (exerciseType === 'domain') {
+    return `Dom(${problemInput})`;
+  } if (exerciseType === 'image') {
+    return `Img(${problemInput})`;
+  }
+  return problemInput;
+}
+
 /**
  * Create exercise.
  *
@@ -17,17 +31,7 @@ const create = async ({
     type: exerciseMetadata.type
   });
 
-  // adding "d()/dx" or "\int dx" to the problem input if applicable
-  let { problemInput } = exerciseMetadata;
-  if (exerciseMetadata.type === 'derivative') {
-    problemInput = `\\frac{d(${exerciseMetadata.problemInput})}{dx}`;
-  } else if (exerciseMetadata.type === 'integral') {
-    problemInput = `\\int ${exerciseMetadata.problemInput} dx`;
-  } else if (exerciseMetadata.type === 'domain') {
-    problemInput = `Dom(${exerciseMetadata.problemInput})`;
-  } else if (exerciseMetadata.type === 'image') {
-    problemInput = `Img(${exerciseMetadata.problemInput})`;
-  }
+  const problemInput = formatProblemInput(exerciseMetadata.problemInput, exerciseMetadata.type);
 
   // adding exercise template
   const createdExercise = await exercisesDB.createExercise({
@@ -68,6 +72,26 @@ const create = async ({
   });
 
   return exerciseToBeRetrieved;
+};
+
+const createPlaygroundExercise = async ({ context, userId, exerciseMetadata }) => {
+
+  // eslint-disable-next-line no-param-reassign,max-len
+  exerciseMetadata.problemInput = formatProblemInput(exerciseMetadata.problemInput, exerciseMetadata.type);
+  const mathTree = await mathResolverClient.generateMathTree({ context,
+    problemInput: exerciseMetadata.problemInput,
+    type: exerciseMetadata.type });
+
+  const createdExercise = await exercisesDB.createPlaygroundExercise({
+    userId,
+    exerciseMetadata: { ...exerciseMetadata, mathTree }
+  });
+
+  return createdExercise;
+};
+
+const getPlaygroundExercise = async ({ userId, exerciseId }) => {
+  return exercisesDB.getPlaygroundExercise({ exerciseId, userId });
 };
 
 /**
@@ -198,5 +222,7 @@ module.exports = {
   getExerciseStatus,
   list,
   remove,
-  update
+  update,
+  createPlaygroundExercise,
+  getPlaygroundExercise
 };

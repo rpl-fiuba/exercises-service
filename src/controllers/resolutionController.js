@@ -103,10 +103,13 @@ const askHelp = async (req, res) => {
 };
 
 
-module.exports = expressify({
-  askHelp,
-  deliver,
-  evaluate,
-  removeStep,
-  resolve
-});
+module.exports = {
+  ...expressify({
+    askHelp,
+    deliver,
+    evaluate,
+    removeStep,
+    resolve
+  }),
+  validateBody
+};

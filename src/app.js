@@ -16,6 +16,7 @@ const courseValidatorMiddleware = require('./middlewares/courseValidatorMiddlewa
 // Controllers
 const statusController = require('./controllers/statusController');
 const usersController = require('./controllers/usersController');
+const playgroundController = require('./controllers/playgroundController');
 const exerciseController = require('./controllers/exerciseController');
 const resolutionController = require('./controllers/resolutionController');
 const statisticsController = require('./controllers/statisticsController');
@@ -58,6 +59,12 @@ router.get('/courses/:courseId/guides/:guideId/user/:userId/exercises/:exerciseI
 router.put('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId', courseValidatorMiddleware, usersController.updateExercise);
 router.put('/courses/:courseId/guides/:guideId/user/:userId/exercises/:exerciseId', courseValidatorMiddleware, usersController.updateExercise);
 router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId/resolutions', courseValidatorMiddleware, usersController.listResolutions);
+
+// Playground
+router.post('/playground/exercises', playgroundController.createPlaygroundExercise);
+router.get('/playground/exercises/:exerciseId', playgroundController.getPlaygroundExercise);
+router.post('/playground/exercises/:exerciseId/resolve', playgroundController.resolvePlaygroundExercise);
+router.delete('/playground/exercises/:exerciseId/step', playgroundController.removePlaygroundStep);
 
 // Resolution
 router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId/step', courseValidatorMiddleware, resolutionController.removeStep);

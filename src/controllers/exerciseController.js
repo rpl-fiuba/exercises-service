@@ -149,11 +149,14 @@ const remove = async (req, res) => {
   return res.status(204).json({});
 };
 
-module.exports = expressify({
+module.exports = { ...expressify({
   create,
   copyCourseExercises,
   getExerciseStatus,
   list,
   remove,
-  update
-});
+  update,
+}),
+validateMetadata,
+extractMetadata
+};

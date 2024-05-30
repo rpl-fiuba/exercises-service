@@ -50,6 +50,53 @@ const createExercise = async ({ courseId, guideId, exerciseMetadata }) => (
     .then((response) => response[0])
 );
 
+const createPlaygroundExercise = async ({ userId, exerciseMetadata }) => (
+  knex('student_playground_exercises')
+    .insert(snakelize({
+      ...exerciseMetadata,
+      userId,
+    }))
+    .returning(['exercise_id', 'created_at'])
+    .then(processDbResponse)
+    .then((response) => response[0])
+);
+
+const getPlaygroundExercise = async ({ exerciseId, userId }) => (
+
+  knex('student_playground_exercises')
+    .select('student_playground_exercises.*')
+    .where('student_playground_exercises.exercise_id', exerciseId)
+    .where('student_playground_exercises.user_id', userId)
+    .then(processDbResponse)
+    .then((response) => {
+      if (!response[0]) {
+        throw createError.NotFound('Exercise not found');
+      }
+      return response[0];
+    })
+);
+
+const updatePlaygroundExercise = async ({
+  userId,
+  exerciseId,
+  exerciseMetadata
+}) => (
+  knex('student_playground_exercises')
+    .update(snakelize(exerciseMetadata))
+    .where(snakelize({
+      userId,
+      exerciseId
+    }))
+    .returning('*')
+    .then(processDbResponse)
+    .then((response) => {
+      if (!response[0]) {
+        throw createError.NotFound('Exercise not found');
+      }
+      return response[0];
+    })
+);
+
 /**
  * List exercise.
  *
@@ -171,5 +218,8 @@ module.exports = {
   listExercises,
   removeExercise,
   updateExercise,
+  createPlaygroundExercise,
+  getPlaygroundExercise,
+  updatePlaygroundExercise,
   commonColumns
 };
