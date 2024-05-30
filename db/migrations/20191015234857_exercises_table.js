@@ -56,6 +56,22 @@ exports.up = (knex) => {
       steps_count   INT DEFAULT 0,
       PRIMARY KEY  (user_id, exercise_id, course_id, guide_id)
     );
+    
+    
+    CREATE TABLE student_playground_exercises(
+      user_id      CHARACTER VARYING(64) NOT NULL,
+      exercise_id  CHARACTER VARYING(128) DEFAULT uuid_generate_v4() NOT NULL,
+      name            CHARACTER VARYING(64) NOT NULL,
+      problem_input   TEXT NOT NULL,
+      math_tree       TEXT NOT NULL, 
+      type            type NOT NULL,
+      created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      step_list    TEXT NOT NULL DEFAULT '"[]"',
+      state        exercise_state NOT NULL DEFAULT 'incompleted',
+      PRIMARY KEY (user_id, exercise_id)
+    );
+
+    
   `;
 
   return knex.raw(query);
