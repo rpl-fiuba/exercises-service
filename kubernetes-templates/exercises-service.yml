@@ -65,3 +65,4 @@ spec:
       targetPort: 9000
   selector:
     app: exercises-service
+    
