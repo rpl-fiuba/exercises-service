@@ -102,7 +102,7 @@ const removePlaygroundStep = async ({
   exerciseId
 }) => {
   const { user: { userId } } = context;
-  const currentExercise = await exercisesDb.getPlaygroundExercise({ exerciseId, userId });
+  const currentExercise = await exerciseService.getPlaygroundExercise({ exerciseId, userId });
   validateExerciseHasNotBeenDelivered(currentExercise);
 
   const { stepList } = currentExercise;
