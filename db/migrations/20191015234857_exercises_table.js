@@ -14,8 +14,8 @@ exports.up = (knex) => {
       created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
       problem_input   TEXT NOT NULL,
-      name            CHARACTER VARYING(64) NOT NULL,
-      description     CHARACTER VARYING(64),
+      name            CHARACTER VARYING(256) NOT NULL,
+      description     CHARACTER VARYING(256),
       initial_hint    CHARACTER VARYING(256),
       type            type NOT NULL,
       difficulty      difficulty NOT NULL,
