@@ -93,7 +93,9 @@ const createPlaygroundExercise = async ({ context, userId, exerciseMetadata }) =
 };
 
 const getPlaygroundExercise = async ({ userId, exerciseId }) => {
-  return exercisesDB.getPlaygroundExercise({ exerciseId, userId });
+  const exercise = exercisesDB.getPlaygroundExercise({ exerciseId, userId });
+  exercise.stepList = JSON.parse(exercise.stepList);
+  return exercise;
 };
 
 /**
