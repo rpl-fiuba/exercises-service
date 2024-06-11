@@ -84,7 +84,7 @@ const createPlaygroundExercise = async ({ context, userId, exerciseMetadata }) =
 
   const createdExercise = await exercisesDB.createPlaygroundExercise({
     userId,
-    exerciseMetadata: { ...exerciseMetadata, mathTree }
+    exerciseMetadata: { ...exerciseMetadata, mathTree: JSON.stringify(mathTree) }
   });
 
   return createdExercise;
