@@ -3,6 +3,7 @@ const mathResolverClient = require('../clients/mathResolverClient');
 const usersService = require('../services/usersService');
 const exercisesDb = require('../databases/exercisesDb');
 const statisticsService = require('../services/statisticsService');
+const exerciseService = require("./exerciseService");
 
 function validateExerciseHasNotBeenDelivered(currentExercise) {
   if (currentExercise.state === 'delivered') {
@@ -75,7 +76,7 @@ const resolvePlayground = async ({
   currentExpression
 }) => {
   const { user: { userId } } = context;
-  const currentExercise = await exercisesDb.getPlaygroundExercise({ exerciseId, userId });
+  const currentExercise = await exerciseService.getPlaygroundExercise({ exerciseId, userId });
 
   validateExerciseHasNotBeenDelivered(currentExercise);
 
