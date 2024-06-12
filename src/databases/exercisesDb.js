@@ -18,6 +18,16 @@ const commonColumns = [
   'pipeline_status',
 ];
 
+const commonPlaygroundColumns = [
+  'exercise_id',
+  'created_at',
+  'problem_input',
+  'name',
+  'type',
+  'state'
+];
+
+
 /**
  * Get exercise.
  *
@@ -75,6 +85,15 @@ const getPlaygroundExercise = async ({ exerciseId, userId }) => (
       return response[0];
     })
 );
+
+const getPlaygroundExercises = async ({ userId }) => (
+  knex('student_playground_exercises')
+    .select(commonPlaygroundColumns)
+    .where('student_playground_exercises.user_id', userId)
+    .orderBy('created_at')
+    .then(processDbResponse)
+);
+
 
 const updatePlaygroundExercise = async ({
   userId,
@@ -221,5 +240,6 @@ module.exports = {
   createPlaygroundExercise,
   getPlaygroundExercise,
   updatePlaygroundExercise,
+  getPlaygroundExercises,
   commonColumns
 };

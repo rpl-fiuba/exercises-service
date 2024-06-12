@@ -98,6 +98,11 @@ const getPlaygroundExercise = async ({ userId, exerciseId }) => {
   return exercise;
 };
 
+const getPlaygroundExercises = async ({ userId }) => {
+  return exercisesDB.getPlaygroundExercises({ userId })
+};
+
+
 /**
  * Copy course exercises.
  *
@@ -228,5 +233,6 @@ module.exports = {
   remove,
   update,
   createPlaygroundExercise,
-  getPlaygroundExercise
+  getPlaygroundExercise,
+  getPlaygroundExercises
 };

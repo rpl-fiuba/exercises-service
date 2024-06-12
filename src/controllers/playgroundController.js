@@ -24,6 +24,7 @@ const getPlaygroundExercise = async (req, res) => {
   const { exerciseId } = req.params;
   const { userId } = req.context.user;
 
+  // TODO remove math tree from HTTP response (at least by default)
   const exercise = await exerciseService.getPlaygroundExercise({
     exerciseId,
     userId
@@ -32,6 +33,13 @@ const getPlaygroundExercise = async (req, res) => {
 
   return res.status(201).json(exercise);
 };
+
+const getPlaygroundExercises = async (req, res) => {
+  const { userId } = req.context.user;
+  const exercise = await exerciseService.getPlaygroundExercises({ userId });
+  return res.status(201).json(exercise);
+};
+
 
 const resolvePlaygroundExercise = async (req, res) => {
   const { exerciseId } = req.params;
@@ -58,5 +66,6 @@ module.exports = expressify({
   createPlaygroundExercise,
   getPlaygroundExercise,
   resolvePlaygroundExercise,
-  removePlaygroundStep
+  removePlaygroundStep,
+  getPlaygroundExercises
 });

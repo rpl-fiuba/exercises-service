@@ -61,6 +61,7 @@ router.put('/courses/:courseId/guides/:guideId/user/:userId/exercises/:exerciseI
 router.get('/courses/:courseId/guides/:guideId/user/exercises/:exerciseId/resolutions', courseValidatorMiddleware, usersController.listResolutions);
 
 // Playground
+router.get('/playground/exercises', playgroundController.getPlaygroundExercises);
 router.post('/playground/exercises', playgroundController.createPlaygroundExercise);
 router.get('/playground/exercises/:exerciseId', playgroundController.getPlaygroundExercise);
 router.post('/playground/exercises/:exerciseId/resolve', playgroundController.resolvePlaygroundExercise);
