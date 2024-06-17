@@ -56,6 +56,14 @@ const resolvePlaygroundExercise = async (req, res) => {
   return res.status(200).json(exerciseStatus);
 };
 
+const removePlaygroundExercise = async (req, res) => {
+  const { exerciseId } = req.params;
+  const { userId } = req.context.user;
+  await exerciseService.removePlaygroundExercise({ exerciseId, userId });
+  return res.status(204).json({});
+};
+
+
 const removePlaygroundStep = async (req, res) => {
   const { exerciseId } = req.params;
   await resolutionService.removePlaygroundStep({ context: req.context, exerciseId });
@@ -67,5 +75,6 @@ module.exports = expressify({
   getPlaygroundExercise,
   resolvePlaygroundExercise,
   removePlaygroundStep,
-  getPlaygroundExercises
+  getPlaygroundExercises,
+  removePlaygroundExercise
 });

@@ -216,6 +216,18 @@ const removeExercise = async ({ courseId, guideId, exerciseId }) => {
   await trx.commit();
 };
 
+const removePlaygroundExercise = async ({ userId, exerciseId }) => {
+  const trx = await knex.transaction();
+  await trx.delete()
+    .from('student_playground_exercises')
+    .where(snakelize({
+      userId,
+      exerciseId
+    }));
+  await trx.commit();
+};
+
+
 /**
  * Add exercises into course
  *
@@ -241,5 +253,6 @@ module.exports = {
   getPlaygroundExercise,
   updatePlaygroundExercise,
   getPlaygroundExercises,
-  commonColumns
+  commonColumns,
+  removePlaygroundExercise
 };

@@ -224,6 +224,13 @@ const remove = async ({
   })
 );
 
+const removePlaygroundExercise = async ({userId, exerciseId}) => (
+  exercisesDB.removePlaygroundExercise({
+    userId,
+    exerciseId
+  })
+);
+
 
 module.exports = {
   create,
@@ -234,5 +241,6 @@ module.exports = {
   update,
   createPlaygroundExercise,
   getPlaygroundExercise,
-  getPlaygroundExercises
+  getPlaygroundExercises,
+  removePlaygroundExercise
 };
