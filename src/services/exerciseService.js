@@ -97,10 +97,14 @@ const getPlaygroundExercise = async ({ userId, exerciseId }) => {
   exercise.stepList = JSON.parse(exercise.stepList);
   return exercise;
 };
-
-const getPlaygroundExercises = async ({ userId }) => {
-  return exercisesDB.getPlaygroundExercises({ userId })
+const getPlaygroundExerciseForStudent = async ({ userId, exerciseId }) => {
+  const exercise = await exercisesDB.getPlaygroundExercise({ exerciseId, userId });
+  const { mathTree, ...cleanExercise } = exercise;
+  cleanExercise.stepList = JSON.parse(cleanExercise.stepList);
+  return cleanExercise;
 };
+
+const getPlaygroundExercises = async ({ userId }) => exercisesDB.getPlaygroundExercises({ userId });
 
 
 /**
@@ -224,7 +228,7 @@ const remove = async ({
   })
 );
 
-const removePlaygroundExercise = async ({userId, exerciseId}) => (
+const removePlaygroundExercise = async ({ userId, exerciseId }) => (
   exercisesDB.removePlaygroundExercise({
     userId,
     exerciseId
@@ -242,5 +246,6 @@ module.exports = {
   createPlaygroundExercise,
   getPlaygroundExercise,
   getPlaygroundExercises,
-  removePlaygroundExercise
+  removePlaygroundExercise,
+  getPlaygroundExerciseForStudent
 };

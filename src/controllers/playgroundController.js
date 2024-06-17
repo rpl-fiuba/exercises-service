@@ -24,8 +24,7 @@ const getPlaygroundExercise = async (req, res) => {
   const { exerciseId } = req.params;
   const { userId } = req.context.user;
 
-  // TODO remove math tree from HTTP response (at least by default)
-  const exercise = await exerciseService.getPlaygroundExercise({
+  const exercise = await exerciseService.getPlaygroundExerciseForStudent({
     exerciseId,
     userId
   });
