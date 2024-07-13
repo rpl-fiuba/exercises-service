@@ -6,6 +6,30 @@ const configs = require('../config')();
 
 const mathResolverServiceUrl = url.format(configs.services.mathResolverService.url);
 
+const generateProblem = async ({ context, type }) => {
+  const generateProblemPath = configs.services.mathResolverService.paths.generateProblem;
+  const fullPath = `${mathResolverServiceUrl}${generateProblemPath}`;
+
+  const response = await fetch(fullPath, {
+    method: 'post',
+    body: JSON.stringify({
+      type
+    }),
+    headers: {
+      authorization: context.accessToken,
+      'Content-Type': 'application/json'
+    }
+  });
+  try {
+    return requestUtils.processResponse(response);
+  } catch (e) {
+    if (e.status === 400) {
+      throw createError(400, { message: 'Ejercicio mal formado' });
+    }
+    throw e;
+  }
+};
+
 const evaluate = async ({ context, problemInput, type }) => {
   const evaluatePath = configs.services.mathResolverService.paths.evaluate;
   const fullPath = `${mathResolverServiceUrl}${evaluatePath}`;
@@ -110,4 +134,5 @@ module.exports = {
   evaluate,
   generateMathTree,
   resolve,
+  generateProblem
 };

@@ -4,6 +4,7 @@ const exerciseService = require('../services/exerciseService');
 const resolutionService = require('../services/resolutionService');
 const { extractMetadata, validateMetadata } = require('./exerciseController');
 const { validateBody } = require('./resolutionController');
+const mathResolverClient = require('../clients/mathResolverClient');
 
 const createPlaygroundExercise = async (req, res) => {
   const exerciseMetadata = extractMetadata(req.body);
@@ -19,6 +20,15 @@ const createPlaygroundExercise = async (req, res) => {
   return res.status(201).json(createdExercise);
 };
 
+const generateProblemInput = async (req, res) => {
+  const exerciseMetadata = extractMetadata(req.body);
+  validateMetadata(exerciseMetadata);
+  const problem = await mathResolverClient.generateProblem({
+    context,
+    type: exerciseMetadata.type
+  });
+  return res.status(201).json(problem);
+};
 
 const getPlaygroundExercise = async (req, res) => {
   const { exerciseId } = req.params;
@@ -75,5 +85,6 @@ module.exports = expressify({
   resolvePlaygroundExercise,
   removePlaygroundStep,
   getPlaygroundExercises,
-  removePlaygroundExercise
+  removePlaygroundExercise,
+  generateProblemInput
 });

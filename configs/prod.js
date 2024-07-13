@@ -16,6 +16,7 @@ module.exports = {
         resolve: '/resolve',
         mathTree: '/results/solution-tree',
         help: '/help',
+        generateProblem: '/problems/generate',
       }
     },
     usersService: {

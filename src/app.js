@@ -67,6 +67,7 @@ router.get('/playground/exercises/:exerciseId', playgroundController.getPlaygrou
 router.delete('/playground/exercises/:exerciseId', playgroundController.removePlaygroundExercise);
 router.post('/playground/exercises/:exerciseId/resolve', playgroundController.resolvePlaygroundExercise);
 router.delete('/playground/exercises/:exerciseId/step', playgroundController.removePlaygroundStep);
+router.post('/playground/problems/generate', playgroundController.generateProblemInput);
 
 // Resolution
 router.delete('/courses/:courseId/guides/:guideId/exercises/:exerciseId/step', courseValidatorMiddleware, resolutionController.removeStep);
