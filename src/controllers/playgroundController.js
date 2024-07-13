@@ -24,7 +24,7 @@ const generateProblemInput = async (req, res) => {
   const exerciseMetadata = extractMetadata(req.body);
   validateMetadata(exerciseMetadata);
   const problem = await mathResolverClient.generateProblem({
-    context,
+    context: req.context,
     type: exerciseMetadata.type
   });
   return res.status(201).json(problem);
